@@ -292,6 +292,7 @@ message Request {
     optional StoreHeartbeatRequest store_heartbeat          = 14;
     optional ReportSplitRequest report_split                = 15;
     optional GetRegionByIDRequest get_region_by_id          = 16;
+    optional AskMergeRequest ask_merge                      = 17;
 }
 
 message Response {
@@ -311,6 +312,7 @@ message Response {
     optional StoreHeartbeatResponse store_heartbeat         = 14;
     optional ReportSplitResponse report_split               = 15;
     optional GetRegionResponse get_region_by_id             = 16;
+    optional AskMergeResponse ask_merge                     = 17;
 }
 
 message BootstrappedError {
