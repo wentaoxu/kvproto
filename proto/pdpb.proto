@@ -31,6 +31,7 @@ enum CommandType {
     StoreHeartbeat      = 12;
     ReportSplit         = 13;
     GetRegionByID       = 14;
+    AskMerge            = 15;
 }
 
 message TsoRequest {
@@ -122,6 +123,7 @@ message RegionHeartbeatRequest {
     optional metapb.Peer leader      = 2;
     // Leader considers that these peers are down.
     repeated PeerStats down_peers    = 3;
+    optional bool region_merging     = 4;
 }
 
 message ChangePeer {
@@ -131,6 +133,15 @@ message ChangePeer {
 
 message TransferLeader {
     optional metapb.Peer peer = 1;
+}
+
+message RegionMerge {
+    optional metapb.Region region    = 1;
+    optional metapb.Peer leader      = 2;
+}
+
+message RegionOffline {
+    optional metapb.Region region    = 1;
 }
 
 message RegionHeartbeatResponse {
@@ -151,6 +162,13 @@ message RegionHeartbeatResponse {
     optional ChangePeer change_peer           = 1;
     // Pd can return transfer_leader to let TiKV does leader transfer itself. 
     optional TransferLeader transfer_leader   = 2;
+    // A region merge procedure contains two phases
+    // 1. merging data in database engines
+    // 2. merging meta-data and peers in TiKV stores
+    // When the phase 1 is done by Pd, Pd responses `RegionMerge` for
+    // `RegionHeartbeatRequest` to tell TiKV region to start the phase 2.
+    optional RegionMerge region_merge         = 3;
+    optional RegionOffline region_offline     = 4;
 }
 
 message PutClusterConfigRequest {
@@ -171,6 +189,20 @@ message AskSplitResponse {
     optional uint64 new_region_id             = 1 [(gogoproto.nullable) = false];
     // The peer ids for the new split region.
     repeated uint64 new_peer_ids              = 2;
+}
+
+message AskMergeRequest {
+    optional metapb.Region region      = 1;
+}
+
+message AskMergeResponse {
+    // A region merge could only be performed between two regions in neighbourhood.
+    // If PD permits this merge request, it will response with `ok == true` and
+    // the adjacent region info. And then start the region merge procedure.
+    // If PD does not permit this merge request, it will response with `ok == false`
+    // and an uninitialized region info.
+    optional bool          ok          = 1;
+    optional metapb.Region region      = 2;
 }
 
 message StoreStats {
@@ -201,7 +233,33 @@ message ReportSplitRequest {
 }
 
 message ReportSplitResponse {
-    
+
+}
+
+// TiKV use `ReportMergeRequest` to tell Pd the region merge phase 2 is done.
+// Two regions are involved in a region merge, e.g.
+// Two old regions [a, b), [b, c) are about to merge into a new region [a, c).
+// Pd would choose one old region, let's say the region [a, b), to be a control region.
+// And this control region would control the procedure of region merge phase 2,
+// which including a few steps as:
+// 1. do a raft write to [a, b) to extend its region range to [a, c)
+// 2. do a raft write to [b, c) to suspend its processing of client read/write requests
+// 3. do a raft write to [a, b) to commit its region extension in 1
+// 4. report to Pd that the region merge phase 2 is done
+// 5. do a raft write to [b, c) to ask it to go offline
+// If step 5 fails due to exception like request loss, the communication
+// between Pd and the old region [b, c) will cause this old region to go offline.
+message ReportMergeRequest {
+    // The new region after regions are merged.
+    optional metapb.Region new         = 1;
+    // The old region which controls the region merge phase 2.
+    optional metapb.Region old         = 2;
+    // The old region which is about to be deleted.
+    optional metapb.Region to_delete   = 3;
+}
+
+message ReportMergeResponse {
+
 }
 
 message RequestHeader {

@@ -32,16 +32,22 @@
 		RegionHeartbeatRequest
 		ChangePeer
 		TransferLeader
+		RegionMerge
+		RegionOffline
 		RegionHeartbeatResponse
 		PutClusterConfigRequest
 		PutClusterConfigResponse
 		AskSplitRequest
 		AskSplitResponse
+		AskMergeRequest
+		AskMergeResponse
 		StoreStats
 		StoreHeartbeatRequest
 		StoreHeartbeatResponse
 		ReportSplitRequest
 		ReportSplitResponse
+		ReportMergeRequest
+		ReportMergeResponse
 		RequestHeader
 		ResponseHeader
 		Request
@@ -93,6 +99,7 @@ const (
 	CommandType_StoreHeartbeat   CommandType = 12
 	CommandType_ReportSplit      CommandType = 13
 	CommandType_GetRegionByID    CommandType = 14
+	CommandType_AskMerge         CommandType = 15
 )
 
 var CommandType_name = map[int32]string{
@@ -111,6 +118,7 @@ var CommandType_name = map[int32]string{
 	12: "StoreHeartbeat",
 	13: "ReportSplit",
 	14: "GetRegionByID",
+	15: "AskMerge",
 }
 var CommandType_value = map[string]int32{
 	"Invalid":          0,
@@ -128,6 +136,7 @@ var CommandType_value = map[string]int32{
 	"StoreHeartbeat":   12,
 	"ReportSplit":      13,
 	"GetRegionByID":    14,
+	"AskMerge":         15,
 }
 
 func (x CommandType) Enum() *CommandType {
@@ -327,7 +336,7 @@ func (m *AllocIdResponse) GetId() uint64 {
 }
 
 type GetStoreRequest struct {
-	StoreId          uint64 `protobuf:"varint,1,opt,name=store_id" json:"store_id"`
+	StoreId          uint64 `protobuf:"varint,1,opt,name=store_id,json=storeId" json:"store_id"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
@@ -361,7 +370,7 @@ func (m *GetStoreResponse) GetStore() *metapb.Store {
 }
 
 type GetRegionRequest struct {
-	RegionKey        []byte `protobuf:"bytes,1,opt,name=region_key" json:"region_key,omitempty"`
+	RegionKey        []byte `protobuf:"bytes,1,opt,name=region_key,json=regionKey" json:"region_key,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
@@ -403,7 +412,7 @@ func (m *GetRegionResponse) GetLeader() *metapb.Peer {
 }
 
 type GetRegionByIDRequest struct {
-	RegionId         uint64 `protobuf:"varint,1,opt,name=region_id" json:"region_id"`
+	RegionId         uint64 `protobuf:"varint,1,opt,name=region_id,json=regionId" json:"region_id"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
@@ -473,7 +482,7 @@ func (*PutStoreResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdp
 
 type PeerStats struct {
 	Peer             *metapb.Peer `protobuf:"bytes,1,opt,name=peer" json:"peer,omitempty"`
-	DownSeconds      *uint64      `protobuf:"varint,2,opt,name=down_seconds" json:"down_seconds,omitempty"`
+	DownSeconds      *uint64      `protobuf:"varint,2,opt,name=down_seconds,json=downSeconds" json:"down_seconds,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
@@ -501,7 +510,8 @@ type RegionHeartbeatRequest struct {
 	// Leader Peer sending the heartbeat.
 	Leader *metapb.Peer `protobuf:"bytes,2,opt,name=leader" json:"leader,omitempty"`
 	// Leader considers that these peers are down.
-	DownPeers        []*PeerStats `protobuf:"bytes,3,rep,name=down_peers" json:"down_peers,omitempty"`
+	DownPeers        []*PeerStats `protobuf:"bytes,3,rep,name=down_peers,json=downPeers" json:"down_peers,omitempty"`
+	RegionMerging    *bool        `protobuf:"varint,4,opt,name=region_merging,json=regionMerging" json:"region_merging,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
@@ -531,8 +541,15 @@ func (m *RegionHeartbeatRequest) GetDownPeers() []*PeerStats {
 	return nil
 }
 
+func (m *RegionHeartbeatRequest) GetRegionMerging() bool {
+	if m != nil && m.RegionMerging != nil {
+		return *m.RegionMerging
+	}
+	return false
+}
+
 type ChangePeer struct {
-	ChangeType       *eraftpb.ConfChangeType `protobuf:"varint,1,opt,name=change_type,enum=eraftpb.ConfChangeType" json:"change_type,omitempty"`
+	ChangeType       *eraftpb.ConfChangeType `protobuf:"varint,1,opt,name=change_type,json=changeType,enum=eraftpb.ConfChangeType" json:"change_type,omitempty"`
 	Peer             *metapb.Peer            `protobuf:"bytes,2,opt,name=peer" json:"peer,omitempty"`
 	XXX_unrecognized []byte                  `json:"-"`
 }
@@ -573,6 +590,48 @@ func (m *TransferLeader) GetPeer() *metapb.Peer {
 	return nil
 }
 
+type RegionMerge struct {
+	Region           *metapb.Region `protobuf:"bytes,1,opt,name=region" json:"region,omitempty"`
+	Leader           *metapb.Peer   `protobuf:"bytes,2,opt,name=leader" json:"leader,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
+}
+
+func (m *RegionMerge) Reset()                    { *m = RegionMerge{} }
+func (m *RegionMerge) String() string            { return proto.CompactTextString(m) }
+func (*RegionMerge) ProtoMessage()               {}
+func (*RegionMerge) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{23} }
+
+func (m *RegionMerge) GetRegion() *metapb.Region {
+	if m != nil {
+		return m.Region
+	}
+	return nil
+}
+
+func (m *RegionMerge) GetLeader() *metapb.Peer {
+	if m != nil {
+		return m.Leader
+	}
+	return nil
+}
+
+type RegionOffline struct {
+	Region           *metapb.Region `protobuf:"bytes,1,opt,name=region" json:"region,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
+}
+
+func (m *RegionOffline) Reset()                    { *m = RegionOffline{} }
+func (m *RegionOffline) String() string            { return proto.CompactTextString(m) }
+func (*RegionOffline) ProtoMessage()               {}
+func (*RegionOffline) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{24} }
+
+func (m *RegionOffline) GetRegion() *metapb.Region {
+	if m != nil {
+		return m.Region
+	}
+	return nil
+}
+
 type RegionHeartbeatResponse struct {
 	// Notice, Pd only allows handling reported epoch >= current pd's.
 	// Leader peer reports region status with RegionHeartbeatRequest
@@ -588,16 +647,23 @@ type RegionHeartbeatResponse struct {
 	// 4. Leader may report old Peers (1), ConfVer (1) to pd before ConfChange
 	// finished, pd stills responses ChangePeer Adding 2, of course, we must
 	// guarantee the second ChangePeer can't be applied in TiKV.
-	ChangePeer *ChangePeer `protobuf:"bytes,1,opt,name=change_peer" json:"change_peer,omitempty"`
+	ChangePeer *ChangePeer `protobuf:"bytes,1,opt,name=change_peer,json=changePeer" json:"change_peer,omitempty"`
 	// Pd can return transfer_leader to let TiKV does leader transfer itself.
-	TransferLeader   *TransferLeader `protobuf:"bytes,2,opt,name=transfer_leader" json:"transfer_leader,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
+	TransferLeader *TransferLeader `protobuf:"bytes,2,opt,name=transfer_leader,json=transferLeader" json:"transfer_leader,omitempty"`
+	// A region merge procedure contains two phases
+	// 1. merging data in database engines
+	// 2. merging meta-data and peers in TiKV stores
+	// When the phase 1 is done by Pd, Pd responses `RegionMerge` for
+	// `RegionHeartbeatRequest` to tell TiKV region to start the phase 2.
+	RegionMerge      *RegionMerge   `protobuf:"bytes,3,opt,name=region_merge,json=regionMerge" json:"region_merge,omitempty"`
+	RegionOffline    *RegionOffline `protobuf:"bytes,4,opt,name=region_offline,json=regionOffline" json:"region_offline,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
 }
 
 func (m *RegionHeartbeatResponse) Reset()                    { *m = RegionHeartbeatResponse{} }
 func (m *RegionHeartbeatResponse) String() string            { return proto.CompactTextString(m) }
 func (*RegionHeartbeatResponse) ProtoMessage()               {}
-func (*RegionHeartbeatResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{23} }
+func (*RegionHeartbeatResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{25} }
 
 func (m *RegionHeartbeatResponse) GetChangePeer() *ChangePeer {
 	if m != nil {
@@ -613,6 +679,20 @@ func (m *RegionHeartbeatResponse) GetTransferLeader() *TransferLeader {
 	return nil
 }
 
+func (m *RegionHeartbeatResponse) GetRegionMerge() *RegionMerge {
+	if m != nil {
+		return m.RegionMerge
+	}
+	return nil
+}
+
+func (m *RegionHeartbeatResponse) GetRegionOffline() *RegionOffline {
+	if m != nil {
+		return m.RegionOffline
+	}
+	return nil
+}
+
 type PutClusterConfigRequest struct {
 	Cluster          *metapb.Cluster `protobuf:"bytes,1,opt,name=cluster" json:"cluster,omitempty"`
 	XXX_unrecognized []byte          `json:"-"`
@@ -621,7 +701,7 @@ type PutClusterConfigRequest struct {
 func (m *PutClusterConfigRequest) Reset()                    { *m = PutClusterConfigRequest{} }
 func (m *PutClusterConfigRequest) String() string            { return proto.CompactTextString(m) }
 func (*PutClusterConfigRequest) ProtoMessage()               {}
-func (*PutClusterConfigRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{24} }
+func (*PutClusterConfigRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{26} }
 
 func (m *PutClusterConfigRequest) GetCluster() *metapb.Cluster {
 	if m != nil {
@@ -637,7 +717,7 @@ type PutClusterConfigResponse struct {
 func (m *PutClusterConfigResponse) Reset()                    { *m = PutClusterConfigResponse{} }
 func (m *PutClusterConfigResponse) String() string            { return proto.CompactTextString(m) }
 func (*PutClusterConfigResponse) ProtoMessage()               {}
-func (*PutClusterConfigResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{25} }
+func (*PutClusterConfigResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{27} }
 
 type AskSplitRequest struct {
 	Region           *metapb.Region `protobuf:"bytes,1,opt,name=region" json:"region,omitempty"`
@@ -647,7 +727,7 @@ type AskSplitRequest struct {
 func (m *AskSplitRequest) Reset()                    { *m = AskSplitRequest{} }
 func (m *AskSplitRequest) String() string            { return proto.CompactTextString(m) }
 func (*AskSplitRequest) ProtoMessage()               {}
-func (*AskSplitRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{26} }
+func (*AskSplitRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{28} }
 
 func (m *AskSplitRequest) GetRegion() *metapb.Region {
 	if m != nil {
@@ -660,16 +740,16 @@ type AskSplitResponse struct {
 	// We split the region into two, first uses the origin
 	// parent region id, and the second uses the new_region_id.
 	// We must guarantee that the new_region_id is global unique.
-	NewRegionId uint64 `protobuf:"varint,1,opt,name=new_region_id" json:"new_region_id"`
+	NewRegionId uint64 `protobuf:"varint,1,opt,name=new_region_id,json=newRegionId" json:"new_region_id"`
 	// The peer ids for the new split region.
-	NewPeerIds       []uint64 `protobuf:"varint,2,rep,name=new_peer_ids" json:"new_peer_ids,omitempty"`
+	NewPeerIds       []uint64 `protobuf:"varint,2,rep,name=new_peer_ids,json=newPeerIds" json:"new_peer_ids,omitempty"`
 	XXX_unrecognized []byte   `json:"-"`
 }
 
 func (m *AskSplitResponse) Reset()                    { *m = AskSplitResponse{} }
 func (m *AskSplitResponse) String() string            { return proto.CompactTextString(m) }
 func (*AskSplitResponse) ProtoMessage()               {}
-func (*AskSplitResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{27} }
+func (*AskSplitResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{29} }
 
 func (m *AskSplitResponse) GetNewRegionId() uint64 {
 	if m != nil {
@@ -685,25 +765,72 @@ func (m *AskSplitResponse) GetNewPeerIds() []uint64 {
 	return nil
 }
 
+type AskMergeRequest struct {
+	Region           *metapb.Region `protobuf:"bytes,1,opt,name=region" json:"region,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
+}
+
+func (m *AskMergeRequest) Reset()                    { *m = AskMergeRequest{} }
+func (m *AskMergeRequest) String() string            { return proto.CompactTextString(m) }
+func (*AskMergeRequest) ProtoMessage()               {}
+func (*AskMergeRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{30} }
+
+func (m *AskMergeRequest) GetRegion() *metapb.Region {
+	if m != nil {
+		return m.Region
+	}
+	return nil
+}
+
+type AskMergeResponse struct {
+	// A region merge could only be performed between two regions in neighbourhood.
+	// If PD permits this merge request, it will response with `ok == true` and
+	// the adjacent region info. And then start the region merge procedure.
+	// If PD does not permit this merge request, it will response with `ok == false`
+	// and an uninitialized region info.
+	Ok               *bool          `protobuf:"varint,1,opt,name=ok" json:"ok,omitempty"`
+	Region           *metapb.Region `protobuf:"bytes,2,opt,name=region" json:"region,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
+}
+
+func (m *AskMergeResponse) Reset()                    { *m = AskMergeResponse{} }
+func (m *AskMergeResponse) String() string            { return proto.CompactTextString(m) }
+func (*AskMergeResponse) ProtoMessage()               {}
+func (*AskMergeResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{31} }
+
+func (m *AskMergeResponse) GetOk() bool {
+	if m != nil && m.Ok != nil {
+		return *m.Ok
+	}
+	return false
+}
+
+func (m *AskMergeResponse) GetRegion() *metapb.Region {
+	if m != nil {
+		return m.Region
+	}
+	return nil
+}
+
 type StoreStats struct {
-	StoreId uint64 `protobuf:"varint,1,opt,name=store_id" json:"store_id"`
+	StoreId uint64 `protobuf:"varint,1,opt,name=store_id,json=storeId" json:"store_id"`
 	// Capacity for the store.
 	Capacity uint64 `protobuf:"varint,2,opt,name=capacity" json:"capacity"`
 	// Available size for the store.
 	Available uint64 `protobuf:"varint,3,opt,name=available" json:"available"`
 	// Total region count in this store.
-	RegionCount uint32 `protobuf:"varint,4,opt,name=region_count" json:"region_count"`
+	RegionCount uint32 `protobuf:"varint,4,opt,name=region_count,json=regionCount" json:"region_count"`
 	// Current sending snapshot count.
-	SendingSnapCount uint32 `protobuf:"varint,5,opt,name=sending_snap_count" json:"sending_snap_count"`
+	SendingSnapCount uint32 `protobuf:"varint,5,opt,name=sending_snap_count,json=sendingSnapCount" json:"sending_snap_count"`
 	// Current receiving snapshot count.
-	ReceivingSnapCount uint32 `protobuf:"varint,6,opt,name=receiving_snap_count" json:"receiving_snap_count"`
+	ReceivingSnapCount uint32 `protobuf:"varint,6,opt,name=receiving_snap_count,json=receivingSnapCount" json:"receiving_snap_count"`
 	XXX_unrecognized   []byte `json:"-"`
 }
 
 func (m *StoreStats) Reset()                    { *m = StoreStats{} }
 func (m *StoreStats) String() string            { return proto.CompactTextString(m) }
 func (*StoreStats) ProtoMessage()               {}
-func (*StoreStats) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{28} }
+func (*StoreStats) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{32} }
 
 func (m *StoreStats) GetStoreId() uint64 {
 	if m != nil {
@@ -755,7 +882,7 @@ type StoreHeartbeatRequest struct {
 func (m *StoreHeartbeatRequest) Reset()                    { *m = StoreHeartbeatRequest{} }
 func (m *StoreHeartbeatRequest) String() string            { return proto.CompactTextString(m) }
 func (*StoreHeartbeatRequest) ProtoMessage()               {}
-func (*StoreHeartbeatRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{29} }
+func (*StoreHeartbeatRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{33} }
 
 func (m *StoreHeartbeatRequest) GetStats() *StoreStats {
 	if m != nil {
@@ -771,7 +898,7 @@ type StoreHeartbeatResponse struct {
 func (m *StoreHeartbeatResponse) Reset()                    { *m = StoreHeartbeatResponse{} }
 func (m *StoreHeartbeatResponse) String() string            { return proto.CompactTextString(m) }
 func (*StoreHeartbeatResponse) ProtoMessage()               {}
-func (*StoreHeartbeatResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{30} }
+func (*StoreHeartbeatResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{34} }
 
 type ReportSplitRequest struct {
 	Left             *metapb.Region `protobuf:"bytes,1,opt,name=left" json:"left,omitempty"`
@@ -782,7 +909,7 @@ type ReportSplitRequest struct {
 func (m *ReportSplitRequest) Reset()                    { *m = ReportSplitRequest{} }
 func (m *ReportSplitRequest) String() string            { return proto.CompactTextString(m) }
 func (*ReportSplitRequest) ProtoMessage()               {}
-func (*ReportSplitRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{31} }
+func (*ReportSplitRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{35} }
 
 func (m *ReportSplitRequest) GetLeft() *metapb.Region {
 	if m != nil {
@@ -805,19 +932,77 @@ type ReportSplitResponse struct {
 func (m *ReportSplitResponse) Reset()                    { *m = ReportSplitResponse{} }
 func (m *ReportSplitResponse) String() string            { return proto.CompactTextString(m) }
 func (*ReportSplitResponse) ProtoMessage()               {}
-func (*ReportSplitResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{32} }
+func (*ReportSplitResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{36} }
+
+// TiKV use `ReportMergeRequest` to tell Pd the region merge phase 2 is done.
+// Two regions are involved in a region merge, e.g.
+// Two old regions [a, b), [b, c) are about to merge into a new region [a, c).
+// Pd would choose one old region, let's say the region [a, b), to be a control region.
+// And this control region would control the procedure of region merge phase 2,
+// which including a few steps as:
+// 1. do a raft write to [a, b) to extend its region range to [a, c)
+// 2. do a raft write to [b, c) to suspend its processing of client read/write requests
+// 3. do a raft write to [a, b) to commit its region extension in 1
+// 4. report to Pd that the region merge phase 2 is done
+// 5. do a raft write to [b, c) to ask it to go offline
+// If step 5 fails due to exception like request loss, the communication
+// between Pd and the old region [b, c) will cause this old region to go offline.
+type ReportMergeRequest struct {
+	// The new region after regions are merged.
+	New *metapb.Region `protobuf:"bytes,1,opt,name=new" json:"new,omitempty"`
+	// The old region which controls the region merge phase 2.
+	Old *metapb.Region `protobuf:"bytes,2,opt,name=old" json:"old,omitempty"`
+	// The old region which is about to be deleted.
+	ToDelete         *metapb.Region `protobuf:"bytes,3,opt,name=to_delete,json=toDelete" json:"to_delete,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
+}
+
+func (m *ReportMergeRequest) Reset()                    { *m = ReportMergeRequest{} }
+func (m *ReportMergeRequest) String() string            { return proto.CompactTextString(m) }
+func (*ReportMergeRequest) ProtoMessage()               {}
+func (*ReportMergeRequest) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{37} }
+
+func (m *ReportMergeRequest) GetNew() *metapb.Region {
+	if m != nil {
+		return m.New
+	}
+	return nil
+}
+
+func (m *ReportMergeRequest) GetOld() *metapb.Region {
+	if m != nil {
+		return m.Old
+	}
+	return nil
+}
+
+func (m *ReportMergeRequest) GetToDelete() *metapb.Region {
+	if m != nil {
+		return m.ToDelete
+	}
+	return nil
+}
+
+type ReportMergeResponse struct {
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *ReportMergeResponse) Reset()                    { *m = ReportMergeResponse{} }
+func (m *ReportMergeResponse) String() string            { return proto.CompactTextString(m) }
+func (*ReportMergeResponse) ProtoMessage()               {}
+func (*ReportMergeResponse) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{38} }
 
 type RequestHeader struct {
 	// 16 bytes, to distinguish request.
 	Uuid             []byte `protobuf:"bytes,1,opt,name=uuid" json:"uuid,omitempty"`
-	ClusterId        uint64 `protobuf:"varint,2,opt,name=cluster_id" json:"cluster_id"`
+	ClusterId        uint64 `protobuf:"varint,2,opt,name=cluster_id,json=clusterId" json:"cluster_id"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
 func (m *RequestHeader) Reset()                    { *m = RequestHeader{} }
 func (m *RequestHeader) String() string            { return proto.CompactTextString(m) }
 func (*RequestHeader) ProtoMessage()               {}
-func (*RequestHeader) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{33} }
+func (*RequestHeader) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{39} }
 
 func (m *RequestHeader) GetUuid() []byte {
 	if m != nil {
@@ -836,7 +1021,7 @@ func (m *RequestHeader) GetClusterId() uint64 {
 type ResponseHeader struct {
 	// 16 bytes, to distinguish request.
 	Uuid             []byte `protobuf:"bytes,1,opt,name=uuid" json:"uuid,omitempty"`
-	ClusterId        uint64 `protobuf:"varint,2,opt,name=cluster_id" json:"cluster_id"`
+	ClusterId        uint64 `protobuf:"varint,2,opt,name=cluster_id,json=clusterId" json:"cluster_id"`
 	Error            *Error `protobuf:"bytes,3,opt,name=error" json:"error,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
@@ -844,7 +1029,7 @@ type ResponseHeader struct {
 func (m *ResponseHeader) Reset()                    { *m = ResponseHeader{} }
 func (m *ResponseHeader) String() string            { return proto.CompactTextString(m) }
 func (*ResponseHeader) ProtoMessage()               {}
-func (*ResponseHeader) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{34} }
+func (*ResponseHeader) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{40} }
 
 func (m *ResponseHeader) GetUuid() []byte {
 	if m != nil {
@@ -869,28 +1054,28 @@ func (m *ResponseHeader) GetError() *Error {
 
 type Request struct {
 	Header           *RequestHeader           `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	CmdType          CommandType              `protobuf:"varint,2,opt,name=cmd_type,enum=pdpb.CommandType" json:"cmd_type"`
+	CmdType          CommandType              `protobuf:"varint,2,opt,name=cmd_type,json=cmdType,enum=pdpb.CommandType" json:"cmd_type"`
 	Tso              *TsoRequest              `protobuf:"bytes,3,opt,name=tso" json:"tso,omitempty"`
 	Bootstrap        *BootstrapRequest        `protobuf:"bytes,4,opt,name=bootstrap" json:"bootstrap,omitempty"`
-	IsBootstrapped   *IsBootstrappedRequest   `protobuf:"bytes,5,opt,name=is_bootstrapped" json:"is_bootstrapped,omitempty"`
-	AllocId          *AllocIdRequest          `protobuf:"bytes,6,opt,name=alloc_id" json:"alloc_id,omitempty"`
-	GetStore         *GetStoreRequest         `protobuf:"bytes,7,opt,name=get_store" json:"get_store,omitempty"`
-	PutStore         *PutStoreRequest         `protobuf:"bytes,8,opt,name=put_store" json:"put_store,omitempty"`
-	AskSplit         *AskSplitRequest         `protobuf:"bytes,9,opt,name=ask_split" json:"ask_split,omitempty"`
-	GetRegion        *GetRegionRequest        `protobuf:"bytes,10,opt,name=get_region" json:"get_region,omitempty"`
-	RegionHeartbeat  *RegionHeartbeatRequest  `protobuf:"bytes,11,opt,name=region_heartbeat" json:"region_heartbeat,omitempty"`
-	GetClusterConfig *GetClusterConfigRequest `protobuf:"bytes,12,opt,name=get_cluster_config" json:"get_cluster_config,omitempty"`
-	PutClusterConfig *PutClusterConfigRequest `protobuf:"bytes,13,opt,name=put_cluster_config" json:"put_cluster_config,omitempty"`
-	StoreHeartbeat   *StoreHeartbeatRequest   `protobuf:"bytes,14,opt,name=store_heartbeat" json:"store_heartbeat,omitempty"`
-	ReportSplit      *ReportSplitRequest      `protobuf:"bytes,15,opt,name=report_split" json:"report_split,omitempty"`
-	GetRegionById    *GetRegionByIDRequest    `protobuf:"bytes,16,opt,name=get_region_by_id" json:"get_region_by_id,omitempty"`
+	IsBootstrapped   *IsBootstrappedRequest   `protobuf:"bytes,5,opt,name=is_bootstrapped,json=isBootstrapped" json:"is_bootstrapped,omitempty"`
+	AllocId          *AllocIdRequest          `protobuf:"bytes,6,opt,name=alloc_id,json=allocId" json:"alloc_id,omitempty"`
+	GetStore         *GetStoreRequest         `protobuf:"bytes,7,opt,name=get_store,json=getStore" json:"get_store,omitempty"`
+	PutStore         *PutStoreRequest         `protobuf:"bytes,8,opt,name=put_store,json=putStore" json:"put_store,omitempty"`
+	AskSplit         *AskSplitRequest         `protobuf:"bytes,9,opt,name=ask_split,json=askSplit" json:"ask_split,omitempty"`
+	GetRegion        *GetRegionRequest        `protobuf:"bytes,10,opt,name=get_region,json=getRegion" json:"get_region,omitempty"`
+	RegionHeartbeat  *RegionHeartbeatRequest  `protobuf:"bytes,11,opt,name=region_heartbeat,json=regionHeartbeat" json:"region_heartbeat,omitempty"`
+	GetClusterConfig *GetClusterConfigRequest `protobuf:"bytes,12,opt,name=get_cluster_config,json=getClusterConfig" json:"get_cluster_config,omitempty"`
+	PutClusterConfig *PutClusterConfigRequest `protobuf:"bytes,13,opt,name=put_cluster_config,json=putClusterConfig" json:"put_cluster_config,omitempty"`
+	StoreHeartbeat   *StoreHeartbeatRequest   `protobuf:"bytes,14,opt,name=store_heartbeat,json=storeHeartbeat" json:"store_heartbeat,omitempty"`
+	ReportSplit      *ReportSplitRequest      `protobuf:"bytes,15,opt,name=report_split,json=reportSplit" json:"report_split,omitempty"`
+	GetRegionById    *GetRegionByIDRequest    `protobuf:"bytes,16,opt,name=get_region_by_id,json=getRegionById" json:"get_region_by_id,omitempty"`
 	XXX_unrecognized []byte                   `json:"-"`
 }
 
 func (m *Request) Reset()                    { *m = Request{} }
 func (m *Request) String() string            { return proto.CompactTextString(m) }
 func (*Request) ProtoMessage()               {}
-func (*Request) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{35} }
+func (*Request) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{41} }
 
 func (m *Request) GetHeader() *RequestHeader {
 	if m != nil {
@@ -1006,28 +1191,28 @@ func (m *Request) GetGetRegionById() *GetRegionByIDRequest {
 
 type Response struct {
 	Header           *ResponseHeader           `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	CmdType          CommandType               `protobuf:"varint,2,opt,name=cmd_type,enum=pdpb.CommandType" json:"cmd_type"`
+	CmdType          CommandType               `protobuf:"varint,2,opt,name=cmd_type,json=cmdType,enum=pdpb.CommandType" json:"cmd_type"`
 	Tso              *TsoResponse              `protobuf:"bytes,3,opt,name=tso" json:"tso,omitempty"`
 	Bootstrap        *BootstrapResponse        `protobuf:"bytes,4,opt,name=bootstrap" json:"bootstrap,omitempty"`
-	IsBootstrapped   *IsBootstrappedResponse   `protobuf:"bytes,5,opt,name=is_bootstrapped" json:"is_bootstrapped,omitempty"`
-	AllocId          *AllocIdResponse          `protobuf:"bytes,6,opt,name=alloc_id" json:"alloc_id,omitempty"`
-	GetStore         *GetStoreResponse         `protobuf:"bytes,7,opt,name=get_store" json:"get_store,omitempty"`
-	PutStore         *PutStoreResponse         `protobuf:"bytes,8,opt,name=put_store" json:"put_store,omitempty"`
-	AskSplit         *AskSplitResponse         `protobuf:"bytes,9,opt,name=ask_split" json:"ask_split,omitempty"`
-	GetRegion        *GetRegionResponse        `protobuf:"bytes,10,opt,name=get_region" json:"get_region,omitempty"`
-	RegionHeartbeat  *RegionHeartbeatResponse  `protobuf:"bytes,11,opt,name=region_heartbeat" json:"region_heartbeat,omitempty"`
-	GetClusterConfig *GetClusterConfigResponse `protobuf:"bytes,12,opt,name=get_cluster_config" json:"get_cluster_config,omitempty"`
-	PutClusterConfig *PutClusterConfigResponse `protobuf:"bytes,13,opt,name=put_cluster_config" json:"put_cluster_config,omitempty"`
-	StoreHeartbeat   *StoreHeartbeatResponse   `protobuf:"bytes,14,opt,name=store_heartbeat" json:"store_heartbeat,omitempty"`
-	ReportSplit      *ReportSplitResponse      `protobuf:"bytes,15,opt,name=report_split" json:"report_split,omitempty"`
-	GetRegionById    *GetRegionResponse        `protobuf:"bytes,16,opt,name=get_region_by_id" json:"get_region_by_id,omitempty"`
+	IsBootstrapped   *IsBootstrappedResponse   `protobuf:"bytes,5,opt,name=is_bootstrapped,json=isBootstrapped" json:"is_bootstrapped,omitempty"`
+	AllocId          *AllocIdResponse          `protobuf:"bytes,6,opt,name=alloc_id,json=allocId" json:"alloc_id,omitempty"`
+	GetStore         *GetStoreResponse         `protobuf:"bytes,7,opt,name=get_store,json=getStore" json:"get_store,omitempty"`
+	PutStore         *PutStoreResponse         `protobuf:"bytes,8,opt,name=put_store,json=putStore" json:"put_store,omitempty"`
+	AskSplit         *AskSplitResponse         `protobuf:"bytes,9,opt,name=ask_split,json=askSplit" json:"ask_split,omitempty"`
+	GetRegion        *GetRegionResponse        `protobuf:"bytes,10,opt,name=get_region,json=getRegion" json:"get_region,omitempty"`
+	RegionHeartbeat  *RegionHeartbeatResponse  `protobuf:"bytes,11,opt,name=region_heartbeat,json=regionHeartbeat" json:"region_heartbeat,omitempty"`
+	GetClusterConfig *GetClusterConfigResponse `protobuf:"bytes,12,opt,name=get_cluster_config,json=getClusterConfig" json:"get_cluster_config,omitempty"`
+	PutClusterConfig *PutClusterConfigResponse `protobuf:"bytes,13,opt,name=put_cluster_config,json=putClusterConfig" json:"put_cluster_config,omitempty"`
+	StoreHeartbeat   *StoreHeartbeatResponse   `protobuf:"bytes,14,opt,name=store_heartbeat,json=storeHeartbeat" json:"store_heartbeat,omitempty"`
+	ReportSplit      *ReportSplitResponse      `protobuf:"bytes,15,opt,name=report_split,json=reportSplit" json:"report_split,omitempty"`
+	GetRegionById    *GetRegionResponse        `protobuf:"bytes,16,opt,name=get_region_by_id,json=getRegionById" json:"get_region_by_id,omitempty"`
 	XXX_unrecognized []byte                    `json:"-"`
 }
 
 func (m *Response) Reset()                    { *m = Response{} }
 func (m *Response) String() string            { return proto.CompactTextString(m) }
 func (*Response) ProtoMessage()               {}
-func (*Response) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{36} }
+func (*Response) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{42} }
 
 func (m *Response) GetHeader() *ResponseHeader {
 	if m != nil {
@@ -1148,7 +1333,7 @@ type BootstrappedError struct {
 func (m *BootstrappedError) Reset()                    { *m = BootstrappedError{} }
 func (m *BootstrappedError) String() string            { return proto.CompactTextString(m) }
 func (*BootstrappedError) ProtoMessage()               {}
-func (*BootstrappedError) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{37} }
+func (*BootstrappedError) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{43} }
 
 type StoreIsTombstoneError struct {
 	XXX_unrecognized []byte `json:"-"`
@@ -1157,19 +1342,19 @@ type StoreIsTombstoneError struct {
 func (m *StoreIsTombstoneError) Reset()                    { *m = StoreIsTombstoneError{} }
 func (m *StoreIsTombstoneError) String() string            { return proto.CompactTextString(m) }
 func (*StoreIsTombstoneError) ProtoMessage()               {}
-func (*StoreIsTombstoneError) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{38} }
+func (*StoreIsTombstoneError) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{44} }
 
 type Error struct {
 	Message          *string                `protobuf:"bytes,1,opt,name=message" json:"message,omitempty"`
 	Bootstrapped     *BootstrappedError     `protobuf:"bytes,2,opt,name=bootstrapped" json:"bootstrapped,omitempty"`
-	IsTombstone      *StoreIsTombstoneError `protobuf:"bytes,3,opt,name=is_tombstone" json:"is_tombstone,omitempty"`
+	IsTombstone      *StoreIsTombstoneError `protobuf:"bytes,3,opt,name=is_tombstone,json=isTombstone" json:"is_tombstone,omitempty"`
 	XXX_unrecognized []byte                 `json:"-"`
 }
 
 func (m *Error) Reset()                    { *m = Error{} }
 func (m *Error) String() string            { return proto.CompactTextString(m) }
 func (*Error) ProtoMessage()               {}
-func (*Error) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{39} }
+func (*Error) Descriptor() ([]byte, []int) { return fileDescriptorPdpb, []int{45} }
 
 func (m *Error) GetMessage() string {
 	if m != nil && m.Message != nil {
@@ -1216,16 +1401,22 @@ func init() {
 	proto.RegisterType((*RegionHeartbeatRequest)(nil), "pdpb.RegionHeartbeatRequest")
 	proto.RegisterType((*ChangePeer)(nil), "pdpb.ChangePeer")
 	proto.RegisterType((*TransferLeader)(nil), "pdpb.TransferLeader")
+	proto.RegisterType((*RegionMerge)(nil), "pdpb.RegionMerge")
+	proto.RegisterType((*RegionOffline)(nil), "pdpb.RegionOffline")
 	proto.RegisterType((*RegionHeartbeatResponse)(nil), "pdpb.RegionHeartbeatResponse")
 	proto.RegisterType((*PutClusterConfigRequest)(nil), "pdpb.PutClusterConfigRequest")
 	proto.RegisterType((*PutClusterConfigResponse)(nil), "pdpb.PutClusterConfigResponse")
 	proto.RegisterType((*AskSplitRequest)(nil), "pdpb.AskSplitRequest")
 	proto.RegisterType((*AskSplitResponse)(nil), "pdpb.AskSplitResponse")
+	proto.RegisterType((*AskMergeRequest)(nil), "pdpb.AskMergeRequest")
+	proto.RegisterType((*AskMergeResponse)(nil), "pdpb.AskMergeResponse")
 	proto.RegisterType((*StoreStats)(nil), "pdpb.StoreStats")
 	proto.RegisterType((*StoreHeartbeatRequest)(nil), "pdpb.StoreHeartbeatRequest")
 	proto.RegisterType((*StoreHeartbeatResponse)(nil), "pdpb.StoreHeartbeatResponse")
 	proto.RegisterType((*ReportSplitRequest)(nil), "pdpb.ReportSplitRequest")
 	proto.RegisterType((*ReportSplitResponse)(nil), "pdpb.ReportSplitResponse")
+	proto.RegisterType((*ReportMergeRequest)(nil), "pdpb.ReportMergeRequest")
+	proto.RegisterType((*ReportMergeResponse)(nil), "pdpb.ReportMergeResponse")
 	proto.RegisterType((*RequestHeader)(nil), "pdpb.RequestHeader")
 	proto.RegisterType((*ResponseHeader)(nil), "pdpb.ResponseHeader")
 	proto.RegisterType((*Request)(nil), "pdpb.Request")
@@ -1839,6 +2030,16 @@ func (m *RegionHeartbeatRequest) MarshalTo(data []byte) (int, error) {
 			i += n
 		}
 	}
+	if m.RegionMerging != nil {
+		data[i] = 0x20
+		i++
+		if *m.RegionMerging {
+			data[i] = 1
+		} else {
+			data[i] = 0
+		}
+		i++
+	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
 	}
@@ -1912,6 +2113,78 @@ func (m *TransferLeader) MarshalTo(data []byte) (int, error) {
 	return i, nil
 }
 
+func (m *RegionMerge) Marshal() (data []byte, err error) {
+	size := m.Size()
+	data = make([]byte, size)
+	n, err := m.MarshalTo(data)
+	if err != nil {
+		return nil, err
+	}
+	return data[:n], nil
+}
+
+func (m *RegionMerge) MarshalTo(data []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Region != nil {
+		data[i] = 0xa
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.Region.Size()))
+		n14, err := m.Region.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n14
+	}
+	if m.Leader != nil {
+		data[i] = 0x12
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.Leader.Size()))
+		n15, err := m.Leader.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n15
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(data[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
+func (m *RegionOffline) Marshal() (data []byte, err error) {
+	size := m.Size()
+	data = make([]byte, size)
+	n, err := m.MarshalTo(data)
+	if err != nil {
+		return nil, err
+	}
+	return data[:n], nil
+}
+
+func (m *RegionOffline) MarshalTo(data []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Region != nil {
+		data[i] = 0xa
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.Region.Size()))
+		n16, err := m.Region.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n16
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(data[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
 func (m *RegionHeartbeatResponse) Marshal() (data []byte, err error) {
 	size := m.Size()
 	data = make([]byte, size)
@@ -1931,21 +2204,41 @@ func (m *RegionHeartbeatResponse) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.ChangePeer.Size()))
-		n14, err := m.ChangePeer.MarshalTo(data[i:])
+		n17, err := m.ChangePeer.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n14
+		i += n17
 	}
 	if m.TransferLeader != nil {
 		data[i] = 0x12
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.TransferLeader.Size()))
-		n15, err := m.TransferLeader.MarshalTo(data[i:])
+		n18, err := m.TransferLeader.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n15
+		i += n18
+	}
+	if m.RegionMerge != nil {
+		data[i] = 0x1a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.RegionMerge.Size()))
+		n19, err := m.RegionMerge.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n19
+	}
+	if m.RegionOffline != nil {
+		data[i] = 0x22
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.RegionOffline.Size()))
+		n20, err := m.RegionOffline.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n20
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -1972,11 +2265,11 @@ func (m *PutClusterConfigRequest) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Cluster.Size()))
-		n16, err := m.Cluster.MarshalTo(data[i:])
+		n21, err := m.Cluster.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n16
+		i += n21
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2024,11 +2317,11 @@ func (m *AskSplitRequest) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Region.Size()))
-		n17, err := m.Region.MarshalTo(data[i:])
+		n22, err := m.Region.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n17
+		i += n22
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2060,6 +2353,78 @@ func (m *AskSplitResponse) MarshalTo(data []byte) (int, error) {
 			i++
 			i = encodeVarintPdpb(data, i, uint64(num))
 		}
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(data[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
+func (m *AskMergeRequest) Marshal() (data []byte, err error) {
+	size := m.Size()
+	data = make([]byte, size)
+	n, err := m.MarshalTo(data)
+	if err != nil {
+		return nil, err
+	}
+	return data[:n], nil
+}
+
+func (m *AskMergeRequest) MarshalTo(data []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Region != nil {
+		data[i] = 0xa
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.Region.Size()))
+		n23, err := m.Region.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n23
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(data[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
+func (m *AskMergeResponse) Marshal() (data []byte, err error) {
+	size := m.Size()
+	data = make([]byte, size)
+	n, err := m.MarshalTo(data)
+	if err != nil {
+		return nil, err
+	}
+	return data[:n], nil
+}
+
+func (m *AskMergeResponse) MarshalTo(data []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Ok != nil {
+		data[i] = 0x8
+		i++
+		if *m.Ok {
+			data[i] = 1
+		} else {
+			data[i] = 0
+		}
+		i++
+	}
+	if m.Region != nil {
+		data[i] = 0x12
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.Region.Size()))
+		n24, err := m.Region.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n24
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2125,11 +2490,11 @@ func (m *StoreHeartbeatRequest) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Stats.Size()))
-		n18, err := m.Stats.MarshalTo(data[i:])
+		n25, err := m.Stats.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n18
+		i += n25
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2177,21 +2542,21 @@ func (m *ReportSplitRequest) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Left.Size()))
-		n19, err := m.Left.MarshalTo(data[i:])
+		n26, err := m.Left.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n19
+		i += n26
 	}
 	if m.Right != nil {
 		data[i] = 0x12
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Right.Size()))
-		n20, err := m.Right.MarshalTo(data[i:])
+		n27, err := m.Right.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n20
+		i += n27
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2210,6 +2575,78 @@ func (m *ReportSplitResponse) Marshal() (data []byte, err error) {
 }
 
 func (m *ReportSplitResponse) MarshalTo(data []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i += copy(data[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
+func (m *ReportMergeRequest) Marshal() (data []byte, err error) {
+	size := m.Size()
+	data = make([]byte, size)
+	n, err := m.MarshalTo(data)
+	if err != nil {
+		return nil, err
+	}
+	return data[:n], nil
+}
+
+func (m *ReportMergeRequest) MarshalTo(data []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.New != nil {
+		data[i] = 0xa
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.New.Size()))
+		n28, err := m.New.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n28
+	}
+	if m.Old != nil {
+		data[i] = 0x12
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.Old.Size()))
+		n29, err := m.Old.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n29
+	}
+	if m.ToDelete != nil {
+		data[i] = 0x1a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.ToDelete.Size()))
+		n30, err := m.ToDelete.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n30
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(data[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
+func (m *ReportMergeResponse) Marshal() (data []byte, err error) {
+	size := m.Size()
+	data = make([]byte, size)
+	n, err := m.MarshalTo(data)
+	if err != nil {
+		return nil, err
+	}
+	return data[:n], nil
+}
+
+func (m *ReportMergeResponse) MarshalTo(data []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
@@ -2278,11 +2715,11 @@ func (m *ResponseHeader) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x1a
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Error.Size()))
-		n21, err := m.Error.MarshalTo(data[i:])
+		n31, err := m.Error.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n21
+		i += n31
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2309,11 +2746,11 @@ func (m *Request) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Header.Size()))
-		n22, err := m.Header.MarshalTo(data[i:])
+		n32, err := m.Header.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n22
+		i += n32
 	}
 	data[i] = 0x10
 	i++
@@ -2322,131 +2759,131 @@ func (m *Request) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x1a
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Tso.Size()))
-		n23, err := m.Tso.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n23
-	}
-	if m.Bootstrap != nil {
-		data[i] = 0x22
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.Bootstrap.Size()))
-		n24, err := m.Bootstrap.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n24
-	}
-	if m.IsBootstrapped != nil {
-		data[i] = 0x2a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.IsBootstrapped.Size()))
-		n25, err := m.IsBootstrapped.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n25
-	}
-	if m.AllocId != nil {
-		data[i] = 0x32
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.AllocId.Size()))
-		n26, err := m.AllocId.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n26
-	}
-	if m.GetStore != nil {
-		data[i] = 0x3a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.GetStore.Size()))
-		n27, err := m.GetStore.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n27
-	}
-	if m.PutStore != nil {
-		data[i] = 0x42
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.PutStore.Size()))
-		n28, err := m.PutStore.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n28
-	}
-	if m.AskSplit != nil {
-		data[i] = 0x4a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.AskSplit.Size()))
-		n29, err := m.AskSplit.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n29
-	}
-	if m.GetRegion != nil {
-		data[i] = 0x52
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.GetRegion.Size()))
-		n30, err := m.GetRegion.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n30
-	}
-	if m.RegionHeartbeat != nil {
-		data[i] = 0x5a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.RegionHeartbeat.Size()))
-		n31, err := m.RegionHeartbeat.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n31
-	}
-	if m.GetClusterConfig != nil {
-		data[i] = 0x62
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.GetClusterConfig.Size()))
-		n32, err := m.GetClusterConfig.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n32
-	}
-	if m.PutClusterConfig != nil {
-		data[i] = 0x6a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.PutClusterConfig.Size()))
-		n33, err := m.PutClusterConfig.MarshalTo(data[i:])
+		n33, err := m.Tso.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n33
 	}
-	if m.StoreHeartbeat != nil {
-		data[i] = 0x72
+	if m.Bootstrap != nil {
+		data[i] = 0x22
 		i++
-		i = encodeVarintPdpb(data, i, uint64(m.StoreHeartbeat.Size()))
-		n34, err := m.StoreHeartbeat.MarshalTo(data[i:])
+		i = encodeVarintPdpb(data, i, uint64(m.Bootstrap.Size()))
+		n34, err := m.Bootstrap.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n34
 	}
-	if m.ReportSplit != nil {
-		data[i] = 0x7a
+	if m.IsBootstrapped != nil {
+		data[i] = 0x2a
 		i++
-		i = encodeVarintPdpb(data, i, uint64(m.ReportSplit.Size()))
-		n35, err := m.ReportSplit.MarshalTo(data[i:])
+		i = encodeVarintPdpb(data, i, uint64(m.IsBootstrapped.Size()))
+		n35, err := m.IsBootstrapped.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n35
+	}
+	if m.AllocId != nil {
+		data[i] = 0x32
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.AllocId.Size()))
+		n36, err := m.AllocId.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n36
+	}
+	if m.GetStore != nil {
+		data[i] = 0x3a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.GetStore.Size()))
+		n37, err := m.GetStore.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n37
+	}
+	if m.PutStore != nil {
+		data[i] = 0x42
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.PutStore.Size()))
+		n38, err := m.PutStore.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n38
+	}
+	if m.AskSplit != nil {
+		data[i] = 0x4a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.AskSplit.Size()))
+		n39, err := m.AskSplit.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n39
+	}
+	if m.GetRegion != nil {
+		data[i] = 0x52
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.GetRegion.Size()))
+		n40, err := m.GetRegion.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n40
+	}
+	if m.RegionHeartbeat != nil {
+		data[i] = 0x5a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.RegionHeartbeat.Size()))
+		n41, err := m.RegionHeartbeat.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n41
+	}
+	if m.GetClusterConfig != nil {
+		data[i] = 0x62
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.GetClusterConfig.Size()))
+		n42, err := m.GetClusterConfig.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n42
+	}
+	if m.PutClusterConfig != nil {
+		data[i] = 0x6a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.PutClusterConfig.Size()))
+		n43, err := m.PutClusterConfig.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n43
+	}
+	if m.StoreHeartbeat != nil {
+		data[i] = 0x72
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.StoreHeartbeat.Size()))
+		n44, err := m.StoreHeartbeat.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n44
+	}
+	if m.ReportSplit != nil {
+		data[i] = 0x7a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.ReportSplit.Size()))
+		n45, err := m.ReportSplit.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n45
 	}
 	if m.GetRegionById != nil {
 		data[i] = 0x82
@@ -2454,11 +2891,11 @@ func (m *Request) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x1
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.GetRegionById.Size()))
-		n36, err := m.GetRegionById.MarshalTo(data[i:])
+		n46, err := m.GetRegionById.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n36
+		i += n46
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2485,11 +2922,11 @@ func (m *Response) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Header.Size()))
-		n37, err := m.Header.MarshalTo(data[i:])
+		n47, err := m.Header.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n37
+		i += n47
 	}
 	data[i] = 0x10
 	i++
@@ -2498,131 +2935,131 @@ func (m *Response) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x1a
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Tso.Size()))
-		n38, err := m.Tso.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n38
-	}
-	if m.Bootstrap != nil {
-		data[i] = 0x22
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.Bootstrap.Size()))
-		n39, err := m.Bootstrap.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n39
-	}
-	if m.IsBootstrapped != nil {
-		data[i] = 0x2a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.IsBootstrapped.Size()))
-		n40, err := m.IsBootstrapped.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n40
-	}
-	if m.AllocId != nil {
-		data[i] = 0x32
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.AllocId.Size()))
-		n41, err := m.AllocId.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n41
-	}
-	if m.GetStore != nil {
-		data[i] = 0x3a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.GetStore.Size()))
-		n42, err := m.GetStore.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n42
-	}
-	if m.PutStore != nil {
-		data[i] = 0x42
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.PutStore.Size()))
-		n43, err := m.PutStore.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n43
-	}
-	if m.AskSplit != nil {
-		data[i] = 0x4a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.AskSplit.Size()))
-		n44, err := m.AskSplit.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n44
-	}
-	if m.GetRegion != nil {
-		data[i] = 0x52
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.GetRegion.Size()))
-		n45, err := m.GetRegion.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n45
-	}
-	if m.RegionHeartbeat != nil {
-		data[i] = 0x5a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.RegionHeartbeat.Size()))
-		n46, err := m.RegionHeartbeat.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n46
-	}
-	if m.GetClusterConfig != nil {
-		data[i] = 0x62
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.GetClusterConfig.Size()))
-		n47, err := m.GetClusterConfig.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n47
-	}
-	if m.PutClusterConfig != nil {
-		data[i] = 0x6a
-		i++
-		i = encodeVarintPdpb(data, i, uint64(m.PutClusterConfig.Size()))
-		n48, err := m.PutClusterConfig.MarshalTo(data[i:])
+		n48, err := m.Tso.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n48
 	}
-	if m.StoreHeartbeat != nil {
-		data[i] = 0x72
+	if m.Bootstrap != nil {
+		data[i] = 0x22
 		i++
-		i = encodeVarintPdpb(data, i, uint64(m.StoreHeartbeat.Size()))
-		n49, err := m.StoreHeartbeat.MarshalTo(data[i:])
+		i = encodeVarintPdpb(data, i, uint64(m.Bootstrap.Size()))
+		n49, err := m.Bootstrap.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n49
 	}
-	if m.ReportSplit != nil {
-		data[i] = 0x7a
+	if m.IsBootstrapped != nil {
+		data[i] = 0x2a
 		i++
-		i = encodeVarintPdpb(data, i, uint64(m.ReportSplit.Size()))
-		n50, err := m.ReportSplit.MarshalTo(data[i:])
+		i = encodeVarintPdpb(data, i, uint64(m.IsBootstrapped.Size()))
+		n50, err := m.IsBootstrapped.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n50
+	}
+	if m.AllocId != nil {
+		data[i] = 0x32
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.AllocId.Size()))
+		n51, err := m.AllocId.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n51
+	}
+	if m.GetStore != nil {
+		data[i] = 0x3a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.GetStore.Size()))
+		n52, err := m.GetStore.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n52
+	}
+	if m.PutStore != nil {
+		data[i] = 0x42
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.PutStore.Size()))
+		n53, err := m.PutStore.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n53
+	}
+	if m.AskSplit != nil {
+		data[i] = 0x4a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.AskSplit.Size()))
+		n54, err := m.AskSplit.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n54
+	}
+	if m.GetRegion != nil {
+		data[i] = 0x52
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.GetRegion.Size()))
+		n55, err := m.GetRegion.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n55
+	}
+	if m.RegionHeartbeat != nil {
+		data[i] = 0x5a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.RegionHeartbeat.Size()))
+		n56, err := m.RegionHeartbeat.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n56
+	}
+	if m.GetClusterConfig != nil {
+		data[i] = 0x62
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.GetClusterConfig.Size()))
+		n57, err := m.GetClusterConfig.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n57
+	}
+	if m.PutClusterConfig != nil {
+		data[i] = 0x6a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.PutClusterConfig.Size()))
+		n58, err := m.PutClusterConfig.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n58
+	}
+	if m.StoreHeartbeat != nil {
+		data[i] = 0x72
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.StoreHeartbeat.Size()))
+		n59, err := m.StoreHeartbeat.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n59
+	}
+	if m.ReportSplit != nil {
+		data[i] = 0x7a
+		i++
+		i = encodeVarintPdpb(data, i, uint64(m.ReportSplit.Size()))
+		n60, err := m.ReportSplit.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n60
 	}
 	if m.GetRegionById != nil {
 		data[i] = 0x82
@@ -2630,11 +3067,11 @@ func (m *Response) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x1
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.GetRegionById.Size()))
-		n51, err := m.GetRegionById.MarshalTo(data[i:])
+		n61, err := m.GetRegionById.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n51
+		i += n61
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -2709,21 +3146,21 @@ func (m *Error) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x12
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.Bootstrapped.Size()))
-		n52, err := m.Bootstrapped.MarshalTo(data[i:])
+		n62, err := m.Bootstrapped.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n52
+		i += n62
 	}
 	if m.IsTombstone != nil {
 		data[i] = 0x1a
 		i++
 		i = encodeVarintPdpb(data, i, uint64(m.IsTombstone.Size()))
-		n53, err := m.IsTombstone.MarshalTo(data[i:])
+		n63, err := m.IsTombstone.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n53
+		i += n63
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(data[i:], m.XXX_unrecognized)
@@ -3009,6 +3446,9 @@ func (m *RegionHeartbeatRequest) Size() (n int) {
 			n += 1 + l + sovPdpb(uint64(l))
 		}
 	}
+	if m.RegionMerging != nil {
+		n += 2
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -3044,6 +3484,36 @@ func (m *TransferLeader) Size() (n int) {
 	return n
 }
 
+func (m *RegionMerge) Size() (n int) {
+	var l int
+	_ = l
+	if m.Region != nil {
+		l = m.Region.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.Leader != nil {
+		l = m.Leader.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *RegionOffline) Size() (n int) {
+	var l int
+	_ = l
+	if m.Region != nil {
+		l = m.Region.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
 func (m *RegionHeartbeatResponse) Size() (n int) {
 	var l int
 	_ = l
@@ -3053,6 +3523,14 @@ func (m *RegionHeartbeatResponse) Size() (n int) {
 	}
 	if m.TransferLeader != nil {
 		l = m.TransferLeader.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.RegionMerge != nil {
+		l = m.RegionMerge.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.RegionOffline != nil {
+		l = m.RegionOffline.Size()
 		n += 1 + l + sovPdpb(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
@@ -3104,6 +3582,35 @@ func (m *AskSplitResponse) Size() (n int) {
 		for _, e := range m.NewPeerIds {
 			n += 1 + sovPdpb(uint64(e))
 		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *AskMergeRequest) Size() (n int) {
+	var l int
+	_ = l
+	if m.Region != nil {
+		l = m.Region.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *AskMergeResponse) Size() (n int) {
+	var l int
+	_ = l
+	if m.Ok != nil {
+		n += 2
+	}
+	if m.Region != nil {
+		l = m.Region.Size()
+		n += 1 + l + sovPdpb(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -3166,6 +3673,36 @@ func (m *ReportSplitRequest) Size() (n int) {
 }
 
 func (m *ReportSplitResponse) Size() (n int) {
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ReportMergeRequest) Size() (n int) {
+	var l int
+	_ = l
+	if m.New != nil {
+		l = m.New.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.Old != nil {
+		l = m.Old.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.ToDelete != nil {
+		l = m.ToDelete.Size()
+		n += 1 + l + sovPdpb(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ReportMergeResponse) Size() (n int) {
 	var l int
 	_ = l
 	if m.XXX_unrecognized != nil {
@@ -5091,6 +5628,27 @@ func (m *RegionHeartbeatRequest) Unmarshal(data []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RegionMerging", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			b := bool(v != 0)
+			m.RegionMerging = &b
 		default:
 			iNdEx = preIndex
 			skippy, err := skipPdpb(data[iNdEx:])
@@ -5301,6 +5859,207 @@ func (m *TransferLeader) Unmarshal(data []byte) error {
 	}
 	return nil
 }
+func (m *RegionMerge) Unmarshal(data []byte) error {
+	l := len(data)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPdpb
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := data[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RegionMerge: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RegionMerge: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Region", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Region == nil {
+				m.Region = &metapb.Region{}
+			}
+			if err := m.Region.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Leader", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Leader == nil {
+				m.Leader = &metapb.Peer{}
+			}
+			if err := m.Leader.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPdpb(data[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RegionOffline) Unmarshal(data []byte) error {
+	l := len(data)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPdpb
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := data[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RegionOffline: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RegionOffline: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Region", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Region == nil {
+				m.Region = &metapb.Region{}
+			}
+			if err := m.Region.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPdpb(data[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *RegionHeartbeatResponse) Unmarshal(data []byte) error {
 	l := len(data)
 	iNdEx := 0
@@ -5393,6 +6152,72 @@ func (m *RegionHeartbeatResponse) Unmarshal(data []byte) error {
 				m.TransferLeader = &TransferLeader{}
 			}
 			if err := m.TransferLeader.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RegionMerge", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.RegionMerge == nil {
+				m.RegionMerge = &RegionMerge{}
+			}
+			if err := m.RegionMerge.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RegionOffline", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.RegionOffline == nil {
+				m.RegionOffline = &RegionOffline{}
+			}
+			if err := m.RegionOffline.Unmarshal(data[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -5705,6 +6530,195 @@ func (m *AskSplitResponse) Unmarshal(data []byte) error {
 				}
 			}
 			m.NewPeerIds = append(m.NewPeerIds, v)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPdpb(data[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AskMergeRequest) Unmarshal(data []byte) error {
+	l := len(data)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPdpb
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := data[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AskMergeRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AskMergeRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Region", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Region == nil {
+				m.Region = &metapb.Region{}
+			}
+			if err := m.Region.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPdpb(data[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AskMergeResponse) Unmarshal(data []byte) error {
+	l := len(data)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPdpb
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := data[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AskMergeResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AskMergeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ok", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			b := bool(v != 0)
+			m.Ok = &b
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Region", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Region == nil {
+				m.Region = &metapb.Region{}
+			}
+			if err := m.Region.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipPdpb(data[iNdEx:])
@@ -6171,6 +7185,207 @@ func (m *ReportSplitResponse) Unmarshal(data []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: ReportSplitResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPdpb(data[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ReportMergeRequest) Unmarshal(data []byte) error {
+	l := len(data)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPdpb
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := data[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ReportMergeRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ReportMergeRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field New", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.New == nil {
+				m.New = &metapb.Region{}
+			}
+			if err := m.New.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Old", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Old == nil {
+				m.Old = &metapb.Region{}
+			}
+			if err := m.Old.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ToDelete", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPdpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ToDelete == nil {
+				m.ToDelete = &metapb.Region{}
+			}
+			if err := m.ToDelete.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPdpb(data[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthPdpb
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ReportMergeResponse) Unmarshal(data []byte) error {
+	l := len(data)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPdpb
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := data[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ReportMergeResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ReportMergeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -7917,93 +9132,119 @@ var (
 func init() { proto.RegisterFile("pdpb.proto", fileDescriptorPdpb) }
 
 var fileDescriptorPdpb = []byte{
-	// 1406 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xa4, 0x57, 0xcd, 0x72, 0xd3, 0x56,
-	0x14, 0xc6, 0xf1, 0xaf, 0x8e, 0x7f, 0x74, 0x73, 0xe3, 0xd8, 0xc6, 0x24, 0x26, 0x15, 0x2d, 0x4d,
-	0x28, 0x24, 0x25, 0x43, 0x4b, 0xa1, 0xed, 0x82, 0x50, 0x06, 0x32, 0xc3, 0x22, 0x80, 0xa7, 0x5b,
-	0x8d, 0x6c, 0xdd, 0x38, 0x1a, 0x6c, 0x49, 0xd5, 0xbd, 0x86, 0x71, 0xbb, 0xea, 0xa2, 0xef, 0xd0,
-	0x37, 0xe9, 0x2b, 0xb0, 0xec, 0x13, 0x74, 0x3a, 0xf4, 0x19, 0xba, 0xef, 0xdc, 0x3f, 0x59, 0x92,
-	0xe5, 0x0c, 0x4c, 0x77, 0xd2, 0xbd, 0xe7, 0xff, 0x7c, 0xdf, 0x39, 0x12, 0x40, 0xe8, 0x86, 0xa3,
-	0xc3, 0x30, 0x0a, 0x58, 0x80, 0x4b, 0xfc, 0xb9, 0xdf, 0x98, 0x11, 0xe6, 0xe8, 0xb3, 0x7e, 0x93,
-	0x44, 0xce, 0x39, 0x8b, 0x5f, 0xdb, 0x93, 0x60, 0x12, 0x88, 0xc7, 0x23, 0xfe, 0x24, 0x4f, 0xad,
-	0x23, 0xa8, 0x3c, 0x27, 0x8e, 0x4b, 0x22, 0x8c, 0xa1, 0xe4, 0xb8, 0x6e, 0xd4, 0x2b, 0xec, 0x15,
-	0xf6, 0x8d, 0x93, 0xd2, 0xbb, 0xbf, 0xae, 0x5f, 0xc1, 0x9b, 0x50, 0x0c, 0x3d, 0xb7, 0xb7, 0xb1,
-	0x57, 0xd8, 0x2f, 0xca, 0x23, 0xeb, 0x13, 0x80, 0x21, 0x0d, 0x5e, 0x92, 0x9f, 0xe6, 0x84, 0x32,
-	0xbc, 0x05, 0xe5, 0x71, 0x30, 0xf7, 0x99, 0xd0, 0x6a, 0x2a, 0x91, 0x87, 0x60, 0x0c, 0xbd, 0x19,
-	0xa1, 0xcc, 0x99, 0x85, 0xb8, 0x03, 0xb5, 0xf0, 0x62, 0x41, 0xbd, 0xb1, 0x33, 0x15, 0x42, 0xca,
-	0x0e, 0xde, 0x86, 0xea, 0x34, 0x98, 0x88, 0xe3, 0xa4, 0xf9, 0xe7, 0x50, 0x17, 0xe6, 0x69, 0x18,
-	0xf8, 0x94, 0xe4, 0xda, 0xc7, 0xfb, 0x60, 0x30, 0x6d, 0x5f, 0x28, 0xd7, 0x8f, 0xcd, 0x43, 0x51,
-	0x8c, 0xd8, 0xad, 0xb2, 0x76, 0x06, 0xe8, 0x24, 0x08, 0x18, 0x65, 0x91, 0x13, 0xea, 0x90, 0x77,
-	0xa0, 0x4c, 0x59, 0x10, 0x11, 0x61, 0xb2, 0x7e, 0xdc, 0x3c, 0x54, 0x45, 0x7b, 0xc5, 0x0f, 0xf1,
-	0x00, 0x2a, 0x11, 0x99, 0x78, 0x81, 0xaf, 0x0c, 0xb7, 0xf4, 0xf5, 0x4b, 0x71, 0x6a, 0x6d, 0xc1,
-	0x66, 0xc2, 0xa2, 0x8c, 0xd2, 0xea, 0xc2, 0xf6, 0x29, 0x8d, 0x8f, 0x43, 0xe2, 0x2a, 0x5f, 0xd6,
-	0x21, 0x74, 0xb2, 0x17, 0x2a, 0xb1, 0x36, 0x34, 0x46, 0x89, 0x73, 0x11, 0x4c, 0xcd, 0x42, 0xd0,
-	0x7a, 0x34, 0x9d, 0x06, 0xe3, 0xd3, 0xd8, 0xc2, 0x0d, 0x30, 0xe3, 0x13, 0xa5, 0x8a, 0x60, 0xc3,
-	0x93, 0x0a, 0x25, 0x95, 0xe6, 0x01, 0x98, 0x4f, 0x09, 0x13, 0x09, 0xe8, 0x2c, 0x3b, 0x50, 0x13,
-	0x59, 0xda, 0x19, 0xd1, 0x2f, 0x01, 0x2d, 0x45, 0x95, 0xc1, 0x4b, 0x2b, 0x62, 0xdd, 0x14, 0x1a,
-	0x32, 0x7d, 0x6d, 0x1d, 0x03, 0xc8, 0x2a, 0xd9, 0xaf, 0xc9, 0x42, 0xa8, 0x35, 0xac, 0x17, 0xb0,
-	0x99, 0x90, 0x53, 0xa6, 0x97, 0xe5, 0x2c, 0xe4, 0x95, 0x13, 0xef, 0x40, 0x65, 0x2a, 0xe0, 0xa7,
-	0xca, 0xdd, 0xd0, 0xf7, 0x67, 0x84, 0x44, 0xd6, 0x11, 0xb4, 0x63, 0x93, 0x27, 0x8b, 0xd3, 0x1f,
-	0xb4, 0xfb, 0x2e, 0x18, 0xca, 0x7d, 0x26, 0xbb, 0xab, 0xd0, 0x7d, 0x4a, 0xd8, 0xe3, 0xe9, 0x9c,
-	0x32, 0x12, 0x3d, 0x0e, 0xfc, 0x73, 0x6f, 0xa2, 0x0b, 0xf9, 0x1d, 0xf4, 0x56, 0xaf, 0x54, 0x94,
-	0x7b, 0x50, 0x1d, 0xcb, 0x0b, 0x15, 0xa6, 0xa9, 0xc3, 0x50, 0xf2, 0xd6, 0x11, 0x98, 0x67, 0xf3,
-	0x74, 0x85, 0x2f, 0xaf, 0x1a, 0x06, 0xb4, 0x54, 0x50, 0x30, 0xf9, 0x1e, 0x0c, 0x9e, 0xd6, 0x2b,
-	0xe6, 0x30, 0x8a, 0xfb, 0x50, 0x0a, 0x49, 0xec, 0x30, 0x95, 0x37, 0x07, 0x87, 0x1b, 0xbc, 0xf5,
-	0x6d, 0x4a, 0xc6, 0x81, 0xef, 0x52, 0x51, 0x9b, 0x92, 0xf5, 0x0b, 0x74, 0x64, 0x29, 0x9e, 0x11,
-	0x27, 0x62, 0x23, 0xe2, 0x30, 0x1d, 0xca, 0xff, 0xaa, 0x32, 0xbe, 0x01, 0x20, 0xbc, 0xf1, 0x70,
-	0x68, 0xaf, 0xb8, 0x57, 0x5c, 0xf2, 0x29, 0x0e, 0xd7, 0xfa, 0x11, 0xe0, 0xf1, 0x85, 0xe3, 0x4f,
-	0x88, 0x50, 0xb9, 0x0d, 0xf5, 0xb1, 0x78, 0xb3, 0xd9, 0x22, 0x94, 0x15, 0x68, 0x1d, 0x77, 0x0f,
-	0xf5, 0xc0, 0xe1, 0xe5, 0x95, 0xd2, 0xc3, 0x45, 0x48, 0xe2, 0x54, 0xf3, 0x5a, 0x7c, 0x1b, 0x5a,
-	0xc3, 0xc8, 0xf1, 0xe9, 0x39, 0x89, 0xd4, 0x1c, 0xba, 0xa4, 0x30, 0x56, 0x00, 0xdd, 0x95, 0x12,
-	0xa8, 0x1e, 0x7e, 0x16, 0x87, 0x94, 0xd0, 0x46, 0x32, 0x8d, 0x44, 0xe4, 0x77, 0xc0, 0x64, 0xca,
-	0x9f, 0x9d, 0xaa, 0x49, 0x5b, 0x4d, 0x90, 0x54, 0x30, 0xd6, 0xb7, 0xd0, 0x3d, 0x9b, 0xe7, 0x02,
-	0xea, 0x03, 0x40, 0xd3, 0x87, 0xde, 0xaa, 0xb2, 0xc2, 0xc2, 0x5d, 0x30, 0x1f, 0xd1, 0xd7, 0xaf,
-	0xc2, 0xa9, 0xf7, 0xa1, 0x5d, 0xb4, 0x9e, 0x00, 0x5a, 0xaa, 0xa8, 0xac, 0xaf, 0x41, 0xd3, 0x27,
-	0x6f, 0xed, 0x5c, 0x36, 0x70, 0x18, 0xf1, 0x4b, 0x5e, 0x0f, 0xdb, 0x13, 0x30, 0x2a, 0xee, 0x97,
-	0xac, 0x3f, 0x0a, 0x00, 0x02, 0x97, 0x12, 0x87, 0x6b, 0x06, 0x05, 0x3f, 0x1f, 0x3b, 0xa1, 0x33,
-	0xf6, 0xd8, 0x42, 0xe2, 0x4f, 0x9d, 0x77, 0xc1, 0x70, 0xde, 0x38, 0xde, 0xd4, 0x19, 0x4d, 0x49,
-	0xaf, 0x98, 0xb8, 0xe8, 0x43, 0x43, 0x85, 0x21, 0x27, 0x76, 0x29, 0x31, 0xb1, 0xf7, 0x00, 0x53,
-	0xe2, 0xbb, 0x9e, 0x3f, 0xb1, 0xa9, 0xef, 0x84, 0x4a, 0xa2, 0x9c, 0x90, 0xb0, 0xa0, 0x1d, 0x91,
-	0x31, 0xf1, 0xde, 0x64, 0x64, 0x2a, 0x89, 0xbd, 0xf2, 0x0d, 0x6c, 0x8b, 0xc0, 0x57, 0xf0, 0x7f,
-	0x9d, 0x53, 0xd1, 0x61, 0x34, 0xdd, 0xf5, 0x65, 0x92, 0x56, 0x0f, 0x3a, 0x59, 0x4d, 0xd5, 0x87,
-	0x17, 0x80, 0x5f, 0x92, 0x30, 0x88, 0x58, 0xaa, 0x15, 0x3b, 0x50, 0x9a, 0x92, 0x73, 0xb6, 0x86,
-	0x4e, 0xbb, 0x50, 0x8e, 0xbc, 0xc9, 0x05, 0x5b, 0xb3, 0x22, 0xb6, 0x61, 0x2b, 0x65, 0x52, 0x79,
-	0xba, 0x0f, 0x4d, 0x65, 0xfe, 0x99, 0x04, 0x7a, 0x03, 0x4a, 0xf3, 0xb9, 0xaa, 0x7a, 0x03, 0xf7,
-	0x00, 0x14, 0x9c, 0x6c, 0xb5, 0x71, 0xf5, 0x50, 0x1b, 0x42, 0x4b, 0x1b, 0xf9, 0x38, 0x4d, 0xdc,
-	0x87, 0x32, 0x89, 0xa2, 0x20, 0x12, 0x7d, 0xaa, 0x1f, 0xd7, 0x65, 0x5d, 0x9e, 0xf0, 0x23, 0xeb,
-	0xdf, 0x32, 0x54, 0x75, 0xba, 0x37, 0xa0, 0x72, 0x21, 0xb9, 0x20, 0x13, 0xde, 0x92, 0x82, 0xe9,
-	0x70, 0x0f, 0xa0, 0x36, 0x9e, 0xb9, 0x92, 0xf0, 0x1b, 0x82, 0xf0, 0x9b, 0x8a, 0x5d, 0xc1, 0x6c,
-	0xe6, 0xf8, 0x2e, 0xa7, 0xba, 0xf2, 0xbb, 0x0b, 0x45, 0x46, 0x03, 0xe5, 0x55, 0x75, 0x23, 0xf1,
-	0xd1, 0x70, 0x00, 0x46, 0xbc, 0xfb, 0x04, 0x4c, 0xea, 0xc7, 0x1d, 0x29, 0xb4, 0xb2, 0xac, 0xef,
-	0x81, 0xe9, 0x51, 0x3b, 0xb5, 0x29, 0xcb, 0x42, 0xe1, 0x9a, 0x54, 0xc8, 0x5d, 0xbb, 0xf8, 0x26,
-	0xd4, 0x1c, 0xbe, 0x34, 0x79, 0x3d, 0x2a, 0x49, 0x76, 0xa7, 0x97, 0x2b, 0xff, 0x90, 0x98, 0x10,
-	0x66, 0xcb, 0x31, 0x5e, 0x15, 0x82, 0xdb, 0x52, 0x30, 0xbb, 0x4e, 0xf7, 0xc1, 0x08, 0xe7, 0x5a,
-	0xb2, 0x96, 0x94, 0xcc, 0xae, 0x85, 0x7d, 0x30, 0x1c, 0xfa, 0xda, 0xa6, 0xbc, 0xf7, 0x3d, 0x23,
-	0x29, 0x99, 0xe5, 0xfb, 0x2d, 0x00, 0xee, 0x5d, 0x71, 0x1e, 0x92, 0x75, 0x58, 0x59, 0xb8, 0x5f,
-	0x03, 0x52, 0xe4, 0xba, 0xd0, 0x10, 0xee, 0xd5, 0x85, 0xc6, 0x8e, 0xee, 0x55, 0xee, 0x66, 0x78,
-	0x00, 0x98, 0xfb, 0xd0, 0xf8, 0x18, 0x8b, 0x21, 0xd4, 0x6b, 0x08, 0xcd, 0xdd, 0xd8, 0x57, 0xee,
-	0x7c, 0x7b, 0x00, 0x98, 0xa7, 0x9c, 0x51, 0x6d, 0x26, 0x55, 0xd7, 0x8d, 0xc6, 0x7b, 0x60, 0xca,
-	0x99, 0xb2, 0x0c, 0xb6, 0x95, 0xec, 0x5a, 0x3e, 0x8b, 0x0f, 0xf9, 0x00, 0xe1, 0xbc, 0x51, 0xc5,
-	0x33, 0x85, 0x4a, 0x4f, 0xe7, 0xb7, 0x42, 0xd2, 0x7b, 0x80, 0x96, 0xf5, 0xb3, 0x47, 0x0b, 0xde,
-	0x6d, 0x24, 0x74, 0xfa, 0x99, 0x2a, 0x26, 0xbe, 0x1d, 0xac, 0x5f, 0x2b, 0x50, 0x8b, 0xc7, 0xe7,
-	0xa7, 0x19, 0xe0, 0xb7, 0xb5, 0xb3, 0x14, 0xdd, 0x3e, 0x02, 0xf9, 0x83, 0x24, 0xf2, 0x37, 0x13,
-	0xc8, 0x57, 0x0e, 0x6f, 0xad, 0x42, 0xbf, 0xbb, 0x02, 0x7d, 0x25, 0xfb, 0xd5, 0x3a, 0xec, 0xef,
-	0xe4, 0x63, 0x5f, 0xa9, 0x7d, 0xbe, 0x02, 0xfe, 0xed, 0x0c, 0xf8, 0x95, 0xe0, 0xc1, 0x2a, 0xfa,
-	0x3b, 0x59, 0xf4, 0x2f, 0x45, 0xb3, 0xf0, 0xef, 0x64, 0xe1, 0xbf, 0x14, 0xcd, 0xe2, 0xbf, 0x93,
-	0xc5, 0xbf, 0x12, 0xfd, 0x22, 0x87, 0x00, 0xdd, 0x15, 0x02, 0x28, 0xe1, 0xfb, 0x6b, 0x19, 0xb0,
-	0xbb, 0x86, 0x01, 0x4a, 0xf1, 0xe1, 0x25, 0x14, 0x18, 0xac, 0xa3, 0xc0, 0x52, 0x77, 0x2d, 0x07,
-	0x06, 0xeb, 0x38, 0xb0, 0x6c, 0x5f, 0x3e, 0x09, 0x76, 0xf2, 0x49, 0xa0, 0xd4, 0x8e, 0x72, 0x59,
-	0x70, 0x35, 0x87, 0x05, 0x4a, 0xe1, 0xee, 0x5a, 0x1a, 0xac, 0xab, 0x65, 0xea, 0x27, 0x26, 0x24,
-	0xae, 0x5c, 0x08, 0x5d, 0xb5, 0x5d, 0x4f, 0xe9, 0x30, 0x98, 0x8d, 0x28, 0x0b, 0x7c, 0x22, 0x2f,
-	0x7e, 0x86, 0xb2, 0x78, 0xc0, 0x26, 0x54, 0x67, 0x84, 0x52, 0x67, 0x22, 0xbf, 0xf8, 0x0c, 0x7c,
-	0x27, 0xf3, 0x13, 0xb3, 0x91, 0x0b, 0x68, 0xed, 0x01, 0xdf, 0x85, 0x86, 0x47, 0x6d, 0xa6, 0xad,
-	0x2b, 0x96, 0x24, 0x67, 0x42, 0xd6, 0xf7, 0xad, 0xdf, 0x36, 0xa0, 0x9e, 0x60, 0x19, 0xae, 0x43,
-	0xf5, 0xd4, 0x7f, 0xe3, 0x4c, 0x3d, 0x17, 0x5d, 0xc1, 0x55, 0x28, 0x0e, 0x69, 0x80, 0x0a, 0xb8,
-	0x09, 0x46, 0xec, 0x0d, 0x6d, 0x60, 0x0c, 0xad, 0x34, 0x37, 0x50, 0x91, 0x2b, 0x2a, 0xfc, 0xa3,
-	0x12, 0x6e, 0x40, 0x4d, 0x43, 0x1c, 0x95, 0xf9, 0x9b, 0x46, 0x31, 0xaa, 0xf0, 0x37, 0x0d, 0x54,
-	0x54, 0xe5, 0x96, 0xe3, 0xf2, 0xa1, 0x1a, 0xde, 0x02, 0x33, 0x03, 0x33, 0x64, 0xe0, 0xb6, 0xf8,
-	0x41, 0x4a, 0x81, 0x00, 0x01, 0x3f, 0xcd, 0x42, 0x03, 0xd5, 0x79, 0x68, 0xe9, 0xbe, 0xa3, 0x06,
-	0x36, 0xa1, 0x9e, 0xe8, 0x2b, 0x6a, 0xe2, 0x4d, 0x68, 0xa6, 0x46, 0x17, 0x6a, 0x9d, 0xa0, 0x77,
-	0xef, 0x07, 0x85, 0x3f, 0xdf, 0x0f, 0x0a, 0x7f, 0xbf, 0x1f, 0x14, 0x7e, 0xff, 0x67, 0x70, 0xe5,
-	0xbf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x5b, 0x4c, 0xdd, 0x10, 0xfe, 0x0f, 0x00, 0x00,
+	// 1821 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xac, 0x58, 0x5b, 0x6f, 0x1b, 0xc7,
+	0x15, 0x36, 0x6f, 0x22, 0x79, 0x78, 0x5b, 0x8d, 0x25, 0x92, 0x51, 0x6d, 0x45, 0x1e, 0xa7, 0x8d,
+	0xda, 0x14, 0x4a, 0x43, 0x27, 0x4e, 0x93, 0xa6, 0x97, 0x58, 0x36, 0x6c, 0x36, 0x0e, 0x2a, 0x8c,
+	0xf4, 0x56, 0xc0, 0x8b, 0x15, 0x77, 0x44, 0x2d, 0x44, 0xee, 0x6e, 0x77, 0x96, 0x16, 0xf8, 0x03,
+	0x0a, 0xf4, 0xbd, 0x2f, 0x7d, 0xea, 0xff, 0xe8, 0x43, 0x1f, 0x0b, 0xe4, 0xb1, 0xbf, 0xa0, 0x28,
+	0xdc, 0xdf, 0x51, 0x20, 0x98, 0x99, 0x33, 0x7b, 0x23, 0xa9, 0xc8, 0x48, 0xde, 0x76, 0xce, 0x6d,
+	0xce, 0x7c, 0xe7, 0x7c, 0x67, 0x86, 0x04, 0x08, 0xdd, 0xf0, 0xfc, 0x28, 0x8c, 0x82, 0x38, 0x20,
+	0x55, 0xf9, 0xbd, 0xd7, 0x9e, 0xf3, 0xd8, 0x31, 0xb2, 0xbd, 0x0e, 0x8f, 0x9c, 0x8b, 0x38, 0x59,
+	0xee, 0x4c, 0x83, 0x69, 0xa0, 0x3e, 0x3f, 0x94, 0x5f, 0x5a, 0x4a, 0x3f, 0x87, 0xad, 0x97, 0xdc,
+	0x71, 0x79, 0x44, 0x86, 0x50, 0x75, 0x5c, 0x37, 0x1a, 0x96, 0x0e, 0x4a, 0x87, 0xcd, 0x27, 0xd5,
+	0x6f, 0xfe, 0xf3, 0xee, 0x1d, 0xa6, 0x24, 0xa4, 0x0f, 0x95, 0xd0, 0x73, 0x87, 0xe5, 0x83, 0xd2,
+	0x61, 0x05, 0x15, 0x52, 0x40, 0x0f, 0x01, 0xce, 0x44, 0xc0, 0xf8, 0x9f, 0x16, 0x5c, 0xc4, 0x64,
+	0x0f, 0x6a, 0x93, 0x60, 0xe1, 0xc7, 0x2a, 0x40, 0x07, 0xed, 0xb4, 0x88, 0x7e, 0x0d, 0xcd, 0x33,
+	0x6f, 0xce, 0x45, 0xec, 0xcc, 0x43, 0x72, 0x00, 0x8d, 0xf0, 0x72, 0x29, 0xbc, 0x89, 0x33, 0x53,
+	0xb6, 0x26, 0x66, 0x22, 0x25, 0xfb, 0x50, 0x9f, 0x05, 0x53, 0x65, 0x90, 0xdd, 0xd4, 0x08, 0xe9,
+	0x2b, 0x68, 0xa9, 0x8d, 0x45, 0x18, 0xf8, 0x82, 0xdf, 0xb4, 0x33, 0x79, 0x04, 0xcd, 0xd8, 0xec,
+	0xac, 0x82, 0xb5, 0x46, 0xbd, 0x23, 0x05, 0x5c, 0x92, 0x10, 0x3a, 0xa4, 0x76, 0xd4, 0x06, 0xeb,
+	0x49, 0x10, 0xc4, 0x22, 0x8e, 0x9c, 0xd0, 0x1c, 0xef, 0x21, 0xd4, 0x44, 0x1c, 0x44, 0x5c, 0x6d,
+	0xd2, 0x1a, 0x75, 0x8e, 0x10, 0xeb, 0x53, 0x29, 0x64, 0x5a, 0x47, 0x7e, 0x02, 0x5b, 0x11, 0x9f,
+	0x7a, 0x81, 0x8f, 0x5b, 0x75, 0x8d, 0x15, 0x53, 0x52, 0x86, 0x5a, 0x7a, 0x17, 0xb6, 0x33, 0x1b,
+	0xe8, 0x63, 0xd0, 0x01, 0xec, 0x8e, 0x45, 0x22, 0x0e, 0xb9, 0x8b, 0x5b, 0xd3, 0x2f, 0xa0, 0x5f,
+	0x54, 0xe0, 0xc9, 0x29, 0xb4, 0xcf, 0x33, 0x72, 0x95, 0x5b, 0x83, 0xe5, 0x64, 0xd4, 0x82, 0xee,
+	0x97, 0xb3, 0x59, 0x30, 0x19, 0x27, 0xf1, 0xde, 0x87, 0x5e, 0x22, 0xc1, 0x40, 0x3b, 0x50, 0xf6,
+	0xb4, 0x7b, 0x15, 0xe1, 0x28, 0x7b, 0x2e, 0x1d, 0x41, 0xef, 0x39, 0x8f, 0xf5, 0x09, 0x11, 0x86,
+	0x77, 0xa1, 0xa1, 0x8e, 0x6a, 0x17, 0xcc, 0xeb, 0x4a, 0x3a, 0x76, 0xe9, 0xa7, 0x60, 0xa5, 0x3e,
+	0x18, 0xfd, 0x36, 0xd8, 0xd1, 0x8f, 0x94, 0x23, 0x02, 0x85, 0xbb, 0xdd, 0x07, 0xd0, 0x88, 0xd9,
+	0x57, 0x7c, 0xa9, 0xbc, 0xdb, 0xac, 0xa9, 0x25, 0x5f, 0xf1, 0x25, 0x75, 0x60, 0x3b, 0xe3, 0x82,
+	0x9b, 0xa5, 0x35, 0x28, 0xdd, 0x54, 0x03, 0xf2, 0x1e, 0x6c, 0xcd, 0x54, 0xe7, 0x63, 0xad, 0xda,
+	0xc6, 0xee, 0x84, 0xf3, 0x88, 0xa1, 0x8e, 0x7e, 0x06, 0x3b, 0xc9, 0x16, 0x4f, 0x96, 0xe3, 0xa7,
+	0x26, 0xb3, 0x07, 0x80, 0x79, 0x14, 0x81, 0x68, 0x68, 0xf1, 0xd8, 0xa5, 0xef, 0xc0, 0xe0, 0x39,
+	0x8f, 0x8f, 0x67, 0x0b, 0x11, 0xf3, 0xe8, 0x38, 0xf0, 0x2f, 0xbc, 0xa9, 0xa9, 0xc0, 0x33, 0x18,
+	0xae, 0xaa, 0x30, 0xff, 0x9f, 0x42, 0x7d, 0xa2, 0x15, 0x78, 0x80, 0x9e, 0x49, 0x0c, 0xed, 0x99,
+	0xd1, 0xd3, 0xc7, 0xd0, 0x3b, 0x59, 0xe4, 0xeb, 0x73, 0x2b, 0xa8, 0x09, 0x58, 0xa9, 0x1f, 0x76,
+	0xdf, 0x09, 0x34, 0xe5, 0xc1, 0x4f, 0x63, 0x27, 0x16, 0xe4, 0x00, 0xaa, 0x21, 0x4f, 0x12, 0xc8,
+	0x23, 0xa3, 0x34, 0xe4, 0x01, 0xb4, 0xdd, 0xe0, 0xda, 0xb7, 0x05, 0x9f, 0x04, 0xbe, 0x2b, 0x14,
+	0x86, 0x55, 0xd6, 0x92, 0xb2, 0x53, 0x2d, 0xa2, 0xff, 0x2c, 0x41, 0x5f, 0x03, 0xf7, 0x82, 0x3b,
+	0x51, 0x7c, 0xce, 0x9d, 0xd8, 0x64, 0xf9, 0x83, 0xd6, 0x88, 0x1c, 0x01, 0xa8, 0x5c, 0x64, 0x62,
+	0x62, 0x58, 0x39, 0xa8, 0xa4, 0x24, 0x4f, 0x8e, 0xc4, 0x9a, 0xd2, 0x44, 0x2e, 0x05, 0xf9, 0x31,
+	0x74, 0xb1, 0x76, 0x73, 0x1e, 0x4d, 0x3d, 0x7f, 0x3a, 0xac, 0x2a, 0xde, 0x74, 0xb4, 0xf4, 0x6b,
+	0x2d, 0xa4, 0x97, 0x00, 0xc7, 0x97, 0x8e, 0x3f, 0xe5, 0xd2, 0x8b, 0xfc, 0x12, 0x5a, 0x13, 0xb5,
+	0xb2, 0xe3, 0x65, 0xa8, 0xe1, 0xed, 0x8e, 0x06, 0x47, 0x66, 0xc6, 0xca, 0x22, 0x6a, 0xeb, 0xb3,
+	0x65, 0xc8, 0x19, 0x4c, 0x92, 0xef, 0x04, 0xcc, 0xf2, 0x26, 0x30, 0xe9, 0x08, 0xba, 0x67, 0x91,
+	0xe3, 0x8b, 0x0b, 0x1e, 0xe1, 0x30, 0xfe, 0xce, 0x02, 0xd0, 0x3f, 0x42, 0x8b, 0x25, 0xe9, 0xfe,
+	0xd0, 0x5d, 0xff, 0x29, 0x74, 0xb4, 0xdf, 0x1f, 0x2e, 0x2e, 0x66, 0x9e, 0x7f, 0xeb, 0xf0, 0xf4,
+	0xff, 0x25, 0x18, 0xac, 0xd4, 0x1c, 0x1b, 0xfb, 0xa3, 0x04, 0xc1, 0xcc, 0xd1, 0x2c, 0x5d, 0xa7,
+	0x14, 0x68, 0x03, 0x9d, 0x02, 0xfd, 0xd7, 0xd0, 0x8b, 0x11, 0x18, 0x3b, 0x97, 0xf6, 0x0e, 0xce,
+	0xf0, 0x1c, 0x6a, 0xac, 0x1b, 0xe7, 0x51, 0xfc, 0x18, 0xda, 0x99, 0x42, 0xf3, 0x61, 0x45, 0xf9,
+	0x6e, 0x6b, 0xdf, 0x0c, 0x7a, 0xac, 0x15, 0x65, 0xa0, 0xfc, 0x3c, 0x69, 0x8f, 0x40, 0x9f, 0x5e,
+	0xb5, 0x47, 0x6b, 0x74, 0x37, 0xeb, 0x87, 0xc0, 0x98, 0x9e, 0xc1, 0x25, 0x7d, 0x0a, 0x83, 0x93,
+	0xc5, 0x5a, 0xce, 0xbf, 0x0d, 0xaf, 0xf7, 0x60, 0xb8, 0x1a, 0x05, 0x79, 0xfa, 0x19, 0xf4, 0xbe,
+	0x14, 0x57, 0xa7, 0xe1, 0xcc, 0x7b, 0x5b, 0x36, 0xd1, 0x57, 0x60, 0xa5, 0xae, 0x58, 0x94, 0x43,
+	0xe8, 0xf8, 0xfc, 0xda, 0x5e, 0x3f, 0xcb, 0x5a, 0x3e, 0xbf, 0x66, 0x38, 0xce, 0xc8, 0x01, 0xb4,
+	0xa5, 0xa5, 0xac, 0x9d, 0xed, 0x29, 0xc6, 0x57, 0x0e, 0xab, 0x0c, 0x7c, 0x7e, 0x2d, 0x4b, 0x35,
+	0x76, 0x05, 0xa6, 0xa6, 0x11, 0x7d, 0xcb, 0xd4, 0x7e, 0xaf, 0x52, 0x43, 0x57, 0x4c, 0xad, 0x0b,
+	0xe5, 0xe0, 0x0a, 0xaf, 0xb4, 0x72, 0x70, 0x75, 0xeb, 0xcb, 0xf5, 0x2f, 0x65, 0x00, 0x35, 0xdb,
+	0xf4, 0x2c, 0xfb, 0xae, 0x1b, 0x4b, 0xbe, 0x47, 0x26, 0x4e, 0xe8, 0x4c, 0xbc, 0x78, 0xa9, 0xc7,
+	0x98, 0x99, 0xe4, 0x46, 0x4a, 0x28, 0x34, 0x9d, 0xd7, 0x8e, 0x37, 0x73, 0xce, 0x67, 0xba, 0x89,
+	0x8c, 0x49, 0x2a, 0x26, 0xef, 0x27, 0xbd, 0xa6, 0xdf, 0x22, 0xd5, 0xcc, 0x5b, 0x04, 0xdb, 0xeb,
+	0x58, 0xbd, 0x48, 0x46, 0x40, 0x04, 0xf7, 0x5d, 0xcf, 0x9f, 0xda, 0xc2, 0x77, 0x42, 0x34, 0xaf,
+	0x65, 0xcc, 0x2d, 0xd4, 0x9f, 0xfa, 0x4e, 0xa8, 0x7d, 0x1e, 0xc3, 0x4e, 0xc4, 0x27, 0xdc, 0x7b,
+	0x5d, 0xf0, 0xda, 0xca, 0x78, 0x91, 0xc4, 0x22, 0xf1, 0xa3, 0xbf, 0x85, 0x5d, 0x85, 0xc4, 0x9a,
+	0x01, 0x5c, 0x13, 0x12, 0x9d, 0x3c, 0x0b, 0x53, 0xd4, 0x98, 0x56, 0xd3, 0x21, 0xf4, 0x8b, 0x01,
+	0xb0, 0x0f, 0x5f, 0x01, 0x61, 0x3c, 0x0c, 0xa2, 0x38, 0xd7, 0x8a, 0x14, 0xaa, 0x33, 0x7e, 0x11,
+	0x6f, 0xa8, 0xb6, 0xd2, 0x91, 0xf7, 0xa0, 0x16, 0x79, 0xd3, 0xcb, 0x78, 0x43, 0x19, 0xb5, 0x92,
+	0xee, 0xc2, 0xdd, 0x5c, 0x7c, 0xdc, 0xf6, 0xcf, 0x25, 0xb3, 0x6f, 0xae, 0xcf, 0x0e, 0xa0, 0xe2,
+	0xf3, 0xeb, 0x0d, 0xdb, 0x4a, 0x95, 0xb4, 0x08, 0x66, 0xee, 0x86, 0x3d, 0xa5, 0x8a, 0x7c, 0x00,
+	0xcd, 0x38, 0xb0, 0x5d, 0x3e, 0xe3, 0xb1, 0x19, 0x15, 0x45, 0xbb, 0x46, 0x1c, 0x3c, 0x55, 0xfa,
+	0x34, 0xbd, 0x5c, 0xcf, 0xd2, 0x17, 0x72, 0x70, 0xaa, 0x94, 0x5e, 0xe8, 0x11, 0x44, 0xa0, 0xba,
+	0x58, 0x60, 0xe7, 0xb5, 0x99, 0xfa, 0x26, 0x0f, 0x01, 0x90, 0xe9, 0x36, 0x3e, 0xab, 0x93, 0x7e,
+	0x42, 0xf9, 0xd8, 0xa5, 0x33, 0xe8, 0x9a, 0xa8, 0xdf, 0x33, 0x14, 0x79, 0x00, 0x35, 0x1e, 0x45,
+	0x41, 0x84, 0x87, 0x6a, 0xe9, 0x62, 0x3f, 0x93, 0x22, 0xa6, 0x35, 0xf4, 0x1f, 0x75, 0xa8, 0x1b,
+	0x2c, 0x3f, 0x80, 0xad, 0x4b, 0x3d, 0x6b, 0x4b, 0xf9, 0xb9, 0x97, 0x39, 0x17, 0x43, 0x13, 0x32,
+	0x82, 0xc6, 0x64, 0xee, 0xea, 0x3b, 0xb1, 0xac, 0xee, 0x44, 0x1c, 0xaf, 0xc7, 0xc1, 0x7c, 0xee,
+	0xf8, 0xae, 0xbc, 0x01, 0x0d, 0xe1, 0x26, 0x73, 0xb5, 0x24, 0x14, 0x2a, 0xb1, 0x08, 0x30, 0x1b,
+	0x6c, 0xbd, 0xf4, 0x87, 0x04, 0x93, 0x4a, 0xf2, 0x31, 0x34, 0x93, 0x57, 0x2c, 0xce, 0xdf, 0xbe,
+	0xb6, 0x2c, 0xbe, 0xcc, 0x59, 0x6a, 0x48, 0x9e, 0x42, 0xcf, 0x13, 0x76, 0xee, 0x49, 0x5c, 0x53,
+	0xbe, 0x3f, 0xd2, 0xbe, 0x6b, 0xdf, 0xd7, 0xac, 0xeb, 0xe5, 0xc4, 0xe4, 0x43, 0x68, 0x38, 0xf2,
+	0x7d, 0x2c, 0x21, 0xdd, 0xca, 0x5e, 0x37, 0xf9, 0x77, 0x34, 0xab, 0x3b, 0x7a, 0x4d, 0x46, 0xd0,
+	0x9c, 0xf2, 0xd8, 0xd6, 0x0f, 0xaf, 0xba, 0xf2, 0xd8, 0xd5, 0x1e, 0x85, 0xe7, 0x33, 0x6b, 0x4c,
+	0x51, 0x20, 0x7d, 0xc2, 0x85, 0xf1, 0x69, 0x64, 0x7d, 0x0a, 0x4f, 0x3a, 0xd6, 0x08, 0x17, 0xa9,
+	0x8f, 0x23, 0xae, 0x6c, 0x21, 0x19, 0x31, 0x6c, 0x66, 0x7d, 0x0a, 0x57, 0x02, 0x6b, 0x38, 0x28,
+	0x20, 0x9f, 0x00, 0xc8, 0xdc, 0x70, 0x72, 0x42, 0x16, 0xc9, 0xe2, 0x73, 0x9b, 0xc9, 0x53, 0x68,
+	0x09, 0x79, 0x0e, 0x16, 0x8e, 0xb3, 0x4b, 0x43, 0xfd, 0x61, 0x4b, 0x39, 0xdf, 0xcb, 0x5e, 0x83,
+	0xc5, 0xc1, 0xc2, 0x7a, 0x51, 0x5e, 0x4e, 0xbe, 0x02, 0x22, 0xf7, 0x37, 0x5d, 0x3a, 0x51, 0xb7,
+	0xd9, 0xb0, 0xad, 0x42, 0xdd, 0x4f, 0xf2, 0x58, 0x77, 0x63, 0x32, 0x6b, 0x5a, 0x50, 0xc8, 0x60,
+	0x12, 0xb4, 0x42, 0xb0, 0x4e, 0x36, 0xd8, 0x86, 0xeb, 0x97, 0x59, 0x61, 0x41, 0x21, 0x9b, 0x45,
+	0x5f, 0x0c, 0xe9, 0x09, 0xbb, 0xd9, 0x66, 0x59, 0x3b, 0x39, 0x59, 0x57, 0xe4, 0xc4, 0xe4, 0x57,
+	0x72, 0xee, 0xcb, 0x41, 0x80, 0x65, 0xe9, 0xa9, 0x10, 0x43, 0x03, 0x52, 0x71, 0x42, 0xca, 0xbb,
+	0x20, 0x91, 0x91, 0x63, 0xb0, 0xd2, 0xe2, 0xd8, 0xe7, 0x4b, 0xd9, 0x71, 0x96, 0x0a, 0xb0, 0x57,
+	0x28, 0x51, 0xe6, 0xb7, 0x07, 0xeb, 0x4c, 0x33, 0x52, 0x97, 0xfe, 0xab, 0x0e, 0x8d, 0xe4, 0xd2,
+	0xfc, 0x79, 0x81, 0xbc, 0x3b, 0x26, 0x91, 0xec, 0x28, 0xf9, 0x5e, 0xec, 0x7d, 0x98, 0x65, 0xef,
+	0x76, 0x86, 0xbd, 0x7a, 0x07, 0x4d, 0xdf, 0x4f, 0x56, 0xe9, 0x3b, 0x58, 0xa1, 0x2f, 0x3a, 0x64,
+	0xf8, 0xfb, 0x6c, 0x13, 0x7f, 0xef, 0xad, 0xe7, 0x2f, 0x46, 0x28, 0x12, 0xf8, 0x17, 0x2b, 0x04,
+	0xde, 0x2d, 0x10, 0x18, 0x1d, 0x13, 0x06, 0x3f, 0x5a, 0x65, 0x70, 0xbf, 0xc8, 0x60, 0xf4, 0x49,
+	0x29, 0xfc, 0x68, 0x95, 0xc2, 0xfd, 0x22, 0x85, 0x8d, 0x53, 0xc2, 0xe1, 0x47, 0xab, 0x1c, 0xee,
+	0x17, 0x39, 0x6c, 0x9c, 0x12, 0x12, 0x3f, 0x5e, 0x43, 0xe2, 0xc1, 0x0a, 0x89, 0x0d, 0x9e, 0x29,
+	0x8b, 0x5f, 0x6c, 0x64, 0xf1, 0xfd, 0x0d, 0x2c, 0xc6, 0x18, 0x2b, 0x34, 0x7e, 0x79, 0x03, 0x8d,
+	0xf7, 0x37, 0xd1, 0x18, 0x83, 0xad, 0xf2, 0xf8, 0xe5, 0x0d, 0x3c, 0xde, 0xdf, 0xc4, 0x63, 0x13,
+	0x6d, 0x85, 0xc8, 0xcf, 0x36, 0x11, 0xf9, 0xde, 0x7a, 0x22, 0x9b, 0xae, 0x29, 0x30, 0xf9, 0x8b,
+	0xb5, 0x4c, 0x7e, 0x67, 0x0d, 0x93, 0x31, 0x40, 0x8e, 0xca, 0xbf, 0xdb, 0x48, 0xe5, 0x8d, 0x85,
+	0x2a, 0xf0, 0x38, 0xfb, 0xa7, 0x50, 0xc8, 0x5d, 0x75, 0x3f, 0xd3, 0x01, 0xbe, 0xe0, 0xc6, 0xe2,
+	0x2c, 0x98, 0x9f, 0x8b, 0x38, 0xf0, 0xb9, 0x56, 0xfc, 0xbd, 0x04, 0x35, 0xf5, 0x45, 0x86, 0x50,
+	0x9f, 0x73, 0x21, 0x9c, 0xa9, 0xfe, 0x55, 0xda, 0x64, 0x66, 0x29, 0x67, 0x53, 0x8e, 0x4b, 0xe5,
+	0xb5, 0x44, 0x34, 0x7b, 0xe5, 0xff, 0x37, 0x22, 0xbf, 0x81, 0xb6, 0x27, 0xec, 0xd8, 0xec, 0x8a,
+	0x84, 0xcf, 0xce, 0xc6, 0x62, 0x4e, 0xac, 0xe5, 0xa5, 0x92, 0x9f, 0xfd, 0xb5, 0x0c, 0xad, 0xcc,
+	0x18, 0x21, 0x2d, 0xa8, 0x8f, 0xfd, 0xd7, 0xce, 0xcc, 0x73, 0xad, 0x3b, 0xa4, 0x0e, 0x95, 0x33,
+	0x11, 0x58, 0x25, 0xd2, 0x81, 0x66, 0x92, 0x88, 0x55, 0x26, 0x04, 0xba, 0x79, 0x8e, 0x5b, 0x15,
+	0xe9, 0x88, 0xbc, 0xb5, 0xaa, 0xa4, 0x0d, 0x0d, 0xc3, 0x48, 0xab, 0x26, 0x57, 0x86, 0x6a, 0xd6,
+	0x96, 0x5c, 0x19, 0x0e, 0x59, 0x75, 0x19, 0x39, 0x81, 0xdc, 0x6a, 0x90, 0xbb, 0xd0, 0x2b, 0x34,
+	0xbb, 0xd5, 0x24, 0x3b, 0xea, 0x3f, 0xa7, 0x5c, 0x37, 0x59, 0x20, 0xa5, 0xc5, 0xee, 0xb3, 0x5a,
+	0x32, 0xb5, 0x7c, 0x23, 0x59, 0x6d, 0xd2, 0x93, 0x3f, 0xc2, 0x93, 0x1e, 0xb0, 0x3a, 0x64, 0x1b,
+	0x3a, 0xb9, 0x91, 0x6d, 0x75, 0x31, 0x2b, 0xf5, 0x4c, 0xb4, 0x7a, 0x4f, 0xac, 0x6f, 0xde, 0xec,
+	0x97, 0xfe, 0xfd, 0x66, 0xbf, 0xf4, 0xdf, 0x37, 0xfb, 0xa5, 0xbf, 0xfd, 0x6f, 0xff, 0xce, 0xb7,
+	0x01, 0x00, 0x00, 0xff, 0xff, 0x17, 0x5c, 0xcc, 0xca, 0xc7, 0x15, 0x00, 0x00,
 }
