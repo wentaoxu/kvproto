@@ -141,7 +141,7 @@ message RegionMerge {
     optional metapb.Peer leader      = 2;
 }
 
-message RegionOffline {
+message RegionShutdown {
     optional metapb.Region region    = 1;
 }
 
@@ -169,7 +169,7 @@ message RegionHeartbeatResponse {
     // When the phase 1 is done by Pd, Pd responses `RegionMerge` for
     // `RegionHeartbeatRequest` to tell TiKV region to start the phase 2.
     optional RegionMerge region_merge         = 3;
-    optional RegionOffline region_offline     = 4;
+    optional RegionShutdown region_shutdown   = 4;
 }
 
 message PutClusterConfigRequest {
