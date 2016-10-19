@@ -32,6 +32,7 @@ enum CommandType {
     ReportSplit         = 13;
     GetRegionByID       = 14;
     AskMerge            = 15;
+    ReportMerge         = 16;
 }
 
 message TsoRequest {
