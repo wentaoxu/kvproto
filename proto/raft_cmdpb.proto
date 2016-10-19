@@ -92,6 +92,17 @@ message SplitResponse {
     optional metapb.Region right = 2;
 }
 
+message MergeRequest {
+    optional metapb.Region region = 1;
+    optional metapb.Peer   leader = 2;
+}
+
+message MergeResponse {
+    optional metapb.Region new         = 1;
+    optional metapb.Region old         = 2;
+    optional metapb.Region to_delete   = 3;
+}
+
 message CompactLogRequest {
     optional uint64 compact_index = 1;
 }
@@ -113,6 +124,7 @@ enum AdminCmdType {
     Split           = 2;
     CompactLog      = 3;
     TransferLeader  = 4;
+    Merge           = 5;
 }
 
 message AdminRequest {
@@ -121,6 +133,7 @@ message AdminRequest {
     optional SplitRequest split                     = 3;
     optional CompactLogRequest compact_log          = 4;
     optional TransferLeaderRequest transfer_leader  = 5;
+    optional MergeRequest merge                     = 6;
 }
 
 message AdminResponse {
@@ -129,6 +142,7 @@ message AdminResponse {
     optional SplitResponse split                    = 3;
     optional CompactLogResponse compact_log         = 4;
     optional TransferLeaderResponse transfer_leader = 5;
+    optional MergeResponse merge                    = 6;
 }
 
 // For get the leader of the region.
