@@ -45,6 +45,17 @@ message RaftApplyState {
     optional RaftTruncatedState truncated_state = 2;
 }
 
+enum MergePhase {
+    NoMerge  = 0;
+    Prepare  = 1;
+    Commit   = 3;
+}
+
+message RegionMergeState {
+    optional MergePhase phase       = 1;
+    optional metapb.Region to_merge = 2;
+}
+
 enum PeerState {
     Normal       = 0;
     Applying     = 1;
@@ -52,6 +63,7 @@ enum PeerState {
 }
 
 message RegionLocalState {
-    optional PeerState state        = 1;
-    optional metapb.Region region   = 2;
+    optional PeerState state              = 1;
+    optional metapb.Region region         = 2;
+    optional RegionMergeState merge_state = 3;
 }
