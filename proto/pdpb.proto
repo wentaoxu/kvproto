@@ -124,7 +124,6 @@ message RegionHeartbeatRequest {
     optional metapb.Peer leader      = 2;
     // Leader considers that these peers are down.
     repeated PeerStats down_peers    = 3;
-    optional bool region_merging     = 4;
 }
 
 message ChangePeer {
