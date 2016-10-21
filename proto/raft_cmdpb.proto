@@ -158,6 +158,9 @@ message AdminRequest {
     optional CompactLogRequest compact_log          = 4;
     optional TransferLeaderRequest transfer_leader  = 5;
     optional MergeRequest merge                     = 6;
+    optional SuspendRegionRequest suspend           = 7;
+    optional CommitMergeRequest commit_merge        = 8;
+    optional ShutdownRegionRequest shutdown_region  = 9;
 }
 
 message AdminResponse {
@@ -167,6 +170,9 @@ message AdminResponse {
     optional CompactLogResponse compact_log         = 4;
     optional TransferLeaderResponse transfer_leader = 5;
     optional MergeResponse merge                    = 6;
+    optional SuspendRegionResponse suspend          = 7;
+    optional CommitMergeResponse commit_merge       = 8;
+    optional ShutdownRegionResponse shutdown_region = 9;
 }
 
 // For get the leader of the region.
