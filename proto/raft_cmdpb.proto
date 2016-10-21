@@ -98,9 +98,6 @@ message MergeRequest {
 }
 
 message MergeResponse {
-    optional metapb.Region new         = 1;
-    optional metapb.Region old         = 2;
-    optional metapb.Region to_delete   = 3;
 }
 
 message SuspendRegionRequest {
@@ -149,6 +146,9 @@ enum AdminCmdType {
     CompactLog      = 3;
     TransferLeader  = 4;
     Merge           = 5;
+    SuspendRegion   = 6;
+    CommitMerge     = 7;
+    ShutdownRegion  = 8;
 }
 
 message AdminRequest {
@@ -158,7 +158,7 @@ message AdminRequest {
     optional CompactLogRequest compact_log          = 4;
     optional TransferLeaderRequest transfer_leader  = 5;
     optional MergeRequest merge                     = 6;
-    optional SuspendRegionRequest suspend           = 7;
+    optional SuspendRegionRequest suspend_region    = 7;
     optional CommitMergeRequest commit_merge        = 8;
     optional ShutdownRegionRequest shutdown_region  = 9;
 }
@@ -170,7 +170,7 @@ message AdminResponse {
     optional CompactLogResponse compact_log         = 4;
     optional TransferLeaderResponse transfer_leader = 5;
     optional MergeResponse merge                    = 6;
-    optional SuspendRegionResponse suspend          = 7;
+    optional SuspendRegionResponse suspend_region   = 7;
     optional CommitMergeResponse commit_merge       = 8;
     optional ShutdownRegionResponse shutdown_region = 9;
 }
