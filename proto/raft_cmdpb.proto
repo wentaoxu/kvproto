@@ -103,6 +103,30 @@ message MergeResponse {
     optional metapb.Region to_delete   = 3;
 }
 
+message SuspendRegionRequest {
+    optional metapb.Region region = 1;
+}
+
+message SuspendRegionResponse {
+    optional metapb.Region region = 1;
+}
+
+message CommitMergeRequest {
+    optional metapb.Region region = 1;
+}
+
+message CommitMergeResponse {
+    optional metapb.Region region = 1;
+}
+
+message ShutdownRegionRequest {
+    optional metapb.Region region = 1;
+}
+
+message ShutdownRegionResponse {
+    optional metapb.Region region = 1;
+}
+
 message CompactLogRequest {
     optional uint64 compact_index = 1;
 }
