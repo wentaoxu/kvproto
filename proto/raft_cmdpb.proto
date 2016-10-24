@@ -109,11 +109,13 @@ message SuspendRegionResponse {
 }
 
 message CommitMergeRequest {
-    optional metapb.Region region = 1;
+    optional metapb.Region region       = 1;
+    optional metapb.Peer   leader       = 2;
+    optional metapb.Region local_region = 3;
 }
 
 message CommitMergeResponse {
-    optional metapb.Region region = 1;
+    optional metapb.Region local_region = 1;
 }
 
 message ShutdownRegionRequest {
