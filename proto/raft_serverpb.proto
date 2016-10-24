@@ -53,6 +53,6 @@ enum PeerState {
 }
 
 message RegionLocalState {
-    optional PeerState state       = 1;
-    optional metapb.Region region  = 2;
+    optional PeerState state        = 1;
+    optional metapb.Region region   = 2;
 }

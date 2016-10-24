@@ -93,8 +93,8 @@ message SplitResponse {
 }
 
 message MergeRequest {
-    optional metapb.Region region = 1;
-    optional metapb.Peer   leader = 2;
+    optional metapb.Region from_region = 1;
+    optional metapb.Peer   from_leader = 2;
 }
 
 message MergeResponse {
@@ -109,13 +109,13 @@ message SuspendRegionResponse {
 }
 
 message CommitMergeRequest {
-    optional metapb.Region region       = 1;
-    optional metapb.Peer   leader       = 2;
-    optional metapb.Region local_region = 3;
+    optional metapb.Region from_region       = 1;
+    optional metapb.Peer   from_leader       = 2;
+    optional metapb.Region into_region = 3;
 }
 
 message CommitMergeResponse {
-    optional metapb.Region local_region = 1;
+    optional metapb.Region into_region = 1;
 }
 
 message ShutdownRegionRequest {

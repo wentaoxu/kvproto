@@ -136,8 +136,8 @@ message TransferLeader {
 }
 
 message RegionMerge {
-    optional metapb.Region region    = 1;
-    optional metapb.Peer leader      = 2;
+    optional metapb.Region from_region    = 1;
+    optional metapb.Peer   from_leader    = 2;
 }
 
 message RegionShutdown {
@@ -192,7 +192,7 @@ message AskSplitResponse {
 }
 
 message AskMergeRequest {
-    optional metapb.Region region      = 1;
+    optional metapb.Region from_region  = 1;
 }
 
 message AskMergeResponse {
@@ -201,8 +201,8 @@ message AskMergeResponse {
     // the adjacent region info. And then start the region merge procedure.
     // If PD does not permit this merge request, it will response with `ok == false`
     // and an uninitialized region info.
-    optional bool          ok          = 1;
-    optional metapb.Region region      = 2;
+    optional bool          ok           = 1;
+    optional metapb.Region into_region  = 2;
 }
 
 message StoreStats {
