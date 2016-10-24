@@ -255,7 +255,7 @@ message ReportMergeRequest {
     // The old region which controls the region merge phase 2.
     optional metapb.Region old         = 2;
     // The old region which is about to be deleted.
-    optional metapb.Region to_delete   = 3;
+    optional metapb.Region to_shutdown = 3;
 }
 
 message ReportMergeResponse {
