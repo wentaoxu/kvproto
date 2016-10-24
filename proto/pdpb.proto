@@ -242,13 +242,15 @@ message ReportSplitResponse {
 // Pd would choose one old region, let's say the region [a, b), to be a control region.
 // And this control region would control the procedure of region merge phase 2,
 // which including a few steps as:
-// 1. do a raft write to [a, b) to extend its region range to [a, c)
+// 1. do a raft write to [a, b) to persist the merging region info into the region state
 // 2. do a raft write to [b, c) to suspend its processing of client read/write requests
-// 3. do a raft write to [a, b) to commit its region extension in 1
+// 3. do a raft write to [a, b) to commit its region extension to [a, c)
 // 4. report to Pd that the region merge phase 2 is done
-// 5. do a raft write to [b, c) to ask it to go offline
-// If step 5 fails due to exception like request loss, the communication
-// between Pd and the old region [b, c) will cause this old region to go offline.
+// 5. do a raft write to [b, c) to tell it to shutdown
+// If step 4 fails due to exception such as request loss, the heartbeat communication
+// between PD and region [a, c) will cause PD to update the new region info.
+// If step 5 fails due to exception such as request loss, the communication
+// between PD and the old region [b, c) will cause the old region to shutdown.
 message ReportMergeRequest {
     // The new region after regions are merged.
     optional metapb.Region new         = 1;
