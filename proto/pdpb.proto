@@ -201,7 +201,7 @@ message AskMergeResponse {
     // the adjacent region info. And then start the region merge procedure.
     // If PD does not permit this merge request, it will response with `ok == false`
     // and an uninitialized region info.
-    optional bool          ok           = 1;
+    optional bool          ok           = 1 [(gogoproto.nullable) = false];
     optional metapb.Region into_region  = 2;
 }
 
