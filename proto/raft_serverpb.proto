@@ -49,10 +49,16 @@ enum PeerState {
     Normal       = 0;
     Applying     = 1;
     Tombstone    = 2;
-    Suspended    = 3;
+}
+
+enum RegionMergeState {
+    NoMerge      = 0;
+    Merging      = 1;
+    Suspended    = 2;
 }
 
 message RegionLocalState {
-    optional PeerState state        = 1;
-    optional metapb.Region region   = 2;
+    optional PeerState state                 = 1;
+    optional metapb.Region region            = 2;
+    optional RegionMergeState merge_state    = 3;
 }

@@ -137,7 +137,6 @@ message TransferLeader {
 
 message RegionMerge {
     optional metapb.Region from_region    = 1;
-    optional metapb.Peer   from_leader    = 2;
 }
 
 message RegionShutdown {

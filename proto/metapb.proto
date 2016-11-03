@@ -35,33 +35,6 @@ message RegionEpoch {
     optional uint64 version     = 2 [(gogoproto.nullable) = false];
 }
 
-enum MergeState {
-    // The region is not mergeing.
-    None    = 0;
-    // The region is preparing to merge.
-    Prepare = 1;
-    // The region is merging.
-    Merging = 2;
-}
-
-// When a region wants itself to be merged, if will first send an
-// AskMergeRequest to PD. PD will choose a neighbour region as the
-// control region, and persists this message into the meta data of
-// both regions (The state will be set to MergeState::Prepare).
-//
-// Then PD will tell (RegionHeartbeatResponse) the control region to
-// start merging. The control region should set the state to
-// MergeState::Merging after it has started merging.
-message RegionMerge {
-    optional MergeState state = 1 [(gogoproto.nullable) = false];
-    // The ID of the merging region.
-    // If the region ID equals this ID, it is the control region.
-    optional uint64 into_id   = 2 [(gogoproto.nullable) = false];
-    // The ID of the being merged region.
-    // If the region ID equals this ID, it will be merged by the control region.
-    optional uint64 from_id   = 3 [(gogoproto.nullable) = false];
-}
-
 message Region {
     optional uint64 id                  = 1 [(gogoproto.nullable) = false];
     // Region key range [start_key, end_key).
@@ -69,7 +42,6 @@ message Region {
     optional bytes  end_key             = 3;
     optional RegionEpoch region_epoch   = 4;
     repeated Peer   peers               = 5;
-    optional RegionMerge region_merge   = 6;
 }
 
 message Peer {      
