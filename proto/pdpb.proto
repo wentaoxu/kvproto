@@ -235,34 +235,6 @@ message ReportSplitResponse {
 
 }
 
-// TiKV use `ReportMergeRequest` to tell Pd the region merge phase 2 is done.
-// Two regions are involved in a region merge, e.g.
-// Two old regions [a, b), [b, c) are about to merge into a new region [a, c).
-// Pd would choose one old region, let's say the region [a, b), to be a control region.
-// And this control region would control the procedure of region merge phase 2,
-// which including a few steps as:
-// 1. do a raft write to [a, b) to persist the merging region info into the region state
-// 2. do a raft write to [b, c) to suspend its processing of client read/write requests
-// 3. do a raft write to [a, b) to commit its region extension to [a, c)
-// 4. report to Pd that the region merge phase 2 is done
-// 5. do a raft write to [b, c) to tell it to shutdown
-// If step 4 fails due to exception such as request loss, the heartbeat communication
-// between PD and region [a, c) will cause PD to update the new region info.
-// If step 5 fails due to exception such as request loss, the communication
-// between PD and the old region [b, c) will cause the old region to shutdown.
-message ReportMergeRequest {
-    // The new region after regions are merged.
-    optional metapb.Region new         = 1;
-    // The old region which controls the region merge phase 2.
-    optional metapb.Region old         = 2;
-    // The old region which is about to be deleted.
-    optional metapb.Region to_shutdown = 3;
-}
-
-message ReportMergeResponse {
-
-}
-
 message RequestHeader {
     // 16 bytes, to distinguish request.  
     optional bytes uuid                = 1;
@@ -294,7 +266,6 @@ message Request {
     optional ReportSplitRequest report_split                = 15;
     optional GetRegionByIDRequest get_region_by_id          = 16;
     optional AskMergeRequest ask_merge                      = 17;
-    optional ReportMergeRequest report_merge                = 18;
 }
 
 message Response {
@@ -315,7 +286,6 @@ message Response {
     optional ReportSplitResponse report_split               = 15;
     optional GetRegionResponse get_region_by_id             = 16;
     optional AskMergeResponse ask_merge                     = 17;
-    optional ReportMergeResponse report_merge               = 18;
 }
 
 message BootstrappedError {
