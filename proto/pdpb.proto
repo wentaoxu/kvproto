@@ -212,7 +212,7 @@ message AskMergeResponse {
     // If PD permits this merge request, it will response with
     // the adjacent region info, and then starts the region merge procedure.
     // If PD does not permit this merge request, it will response with an error.
-    optional metapb.Region into_region  = 2;
+    optional metapb.Region into_region  = 1;
 }
 
 message StoreStats {
