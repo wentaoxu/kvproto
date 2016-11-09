@@ -209,11 +209,9 @@ message AskMergeRequest {
 
 message AskMergeResponse {
     // A region merge could only be performed between two regions in neighbourhood.
-    // If PD permits this merge request, it will response with `ok == true` and
-    // the adjacent region info. And then start the region merge procedure.
-    // If PD does not permit this merge request, it will response with `ok == false`
-    // and an uninitialized region info.
-    optional bool          ok           = 1 [(gogoproto.nullable) = false];
+    // If PD permits this merge request, it will response with
+    // the adjacent region info, and then starts the region merge procedure.
+    // If PD does not permit this merge request, it will response with an error.
     optional metapb.Region into_region  = 2;
 }
 
