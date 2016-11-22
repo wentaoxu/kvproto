@@ -646,6 +646,13 @@ func (m *TransferLeader) GetPeer() *metapb.Peer {
 	return nil
 }
 
+// Two regions are involved in a region merge procedure:
+// 1. The region has small db size, which is about to be migrated
+//    to another region. It's called "from region", since it's the region
+//    where the merged data comes from.
+// 2. The region has normal db size, which is about to subsume
+//    another region. It's called "into region", since it's the region
+//    where the merged data goes into.
 type MergeRegion struct {
 	FromRegion       *metapb.Region `protobuf:"bytes,1,opt,name=from_region,json=fromRegion" json:"from_region,omitempty"`
 	IntoRegion       *metapb.Region `protobuf:"bytes,2,opt,name=into_region,json=intoRegion" json:"into_region,omitempty"`
