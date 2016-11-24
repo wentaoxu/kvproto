@@ -94,6 +94,7 @@ message SplitResponse {
 
 message MergeRequest {
     optional metapb.Region from_region = 1;
+    optional metapb.Region into_region = 2;
 }
 
 message MergeResponse {
