@@ -137,16 +137,26 @@ message TransferLeaderRequest {
 message TransferLeaderResponse {
 }
 
+message VerifyHashRequest {
+    optional uint64 index   = 1;
+    optional bytes hash     = 2;
+}
+
+message VerifyHashResponse {
+}
+
 enum AdminCmdType {
     InvalidAdmin    = 0;
     ChangePeer      = 1;
     Split           = 2;
     CompactLog      = 3;
     TransferLeader  = 4;
-    Merge           = 5;
-    SuspendRegion   = 6;
-    CommitMerge     = 7;
-    ShutdownRegion  = 8;
+    ComputeHash     = 5;
+    VerifyHash      = 6;
+    Merge           = 7;
+    SuspendRegion   = 8;
+    CommitMerge     = 9;
+    ShutdownRegion  = 10;
 }
 
 message AdminRequest {
@@ -155,10 +165,11 @@ message AdminRequest {
     optional SplitRequest split                     = 3;
     optional CompactLogRequest compact_log          = 4;
     optional TransferLeaderRequest transfer_leader  = 5;
-    optional MergeRequest merge                     = 6;
-    optional SuspendRegionRequest suspend_region    = 7;
-    optional CommitMergeRequest commit_merge        = 8;
-    optional ShutdownRegionRequest shutdown_region  = 9;
+    optional VerifyHashRequest verify_hash          = 6;
+    optional MergeRequest merge                     = 7;
+    optional SuspendRegionRequest suspend_region    = 8;
+    optional CommitMergeRequest commit_merge        = 9;
+    optional ShutdownRegionRequest shutdown_region  = 10;
 }
 
 message AdminResponse {
@@ -167,10 +178,11 @@ message AdminResponse {
     optional SplitResponse split                    = 3;
     optional CompactLogResponse compact_log         = 4;
     optional TransferLeaderResponse transfer_leader = 5;
-    optional MergeResponse merge                    = 6;
-    optional SuspendRegionResponse suspend_region   = 7;
-    optional CommitMergeResponse commit_merge       = 8;
-    optional ShutdownRegionResponse shutdown_region = 9;
+    optional VerifyHashResponse verify_hash         = 6;
+    optional MergeResponse merge                    = 7;
+    optional SuspendRegionResponse suspend_region   = 8;
+    optional CommitMergeResponse commit_merge       = 9;
+    optional ShutdownRegionResponse shutdown_region = 10;
 }
 
 // For get the leader of the region.
@@ -228,6 +240,7 @@ message RaftRequestHeader {
     optional bytes uuid                         = 4;
     
     optional metapb.RegionEpoch region_epoch    = 5;
+    optional uint64 term                        = 6;
 }
 
 message RaftResponseHeader {
