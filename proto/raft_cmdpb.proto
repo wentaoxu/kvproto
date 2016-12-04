@@ -92,6 +92,29 @@ message SplitResponse {
     optional metapb.Region right = 2;
 }
 
+message CompactLogRequest {
+    optional uint64 compact_index = 1;
+}
+
+message CompactLogResponse {
+    
+}
+
+message TransferLeaderRequest {
+    optional metapb.Peer peer =	1;
+}
+
+message TransferLeaderResponse {
+}
+
+message VerifyHashRequest {
+    optional uint64 index   = 1;
+    optional bytes hash     = 2;
+}
+
+message VerifyHashResponse {
+}
+
 message MergeRequest {
     optional metapb.Region from_region = 1;
     optional metapb.Region into_region = 2;
@@ -122,27 +145,12 @@ message ShutdownRegionRequest {
 message ShutdownRegionResponse {
 }
 
-message CompactLogRequest {
-    optional uint64 compact_index = 1;
+message RollbackMergeRequest {
+    optional metapb.Region from_region = 1;
+    optional metapb.Region into_region = 2;
 }
 
-message CompactLogResponse {
-    
-}
-
-message TransferLeaderRequest {
-    optional metapb.Peer peer =	1;
-}
-
-message TransferLeaderResponse {
-}
-
-message VerifyHashRequest {
-    optional uint64 index   = 1;
-    optional bytes hash     = 2;
-}
-
-message VerifyHashResponse {
+message RollbackMergeResponse {
 }
 
 enum AdminCmdType {
@@ -157,6 +165,7 @@ enum AdminCmdType {
     SuspendRegion   = 8;
     CommitMerge     = 9;
     ShutdownRegion  = 10;
+    RollbackMerge   = 11;
 }
 
 message AdminRequest {
@@ -170,6 +179,7 @@ message AdminRequest {
     optional SuspendRegionRequest suspend_region    = 8;
     optional CommitMergeRequest commit_merge        = 9;
     optional ShutdownRegionRequest shutdown_region  = 10;
+    optional RollbackMergeRequest rollback_merge    = 11;
 }
 
 message AdminResponse {
@@ -183,6 +193,7 @@ message AdminResponse {
     optional SuspendRegionResponse suspend_region   = 8;
     optional CommitMergeResponse commit_merge       = 9;
     optional ShutdownRegionResponse shutdown_region = 10;
+    optional RollbackMergeResponse rollback_merge   = 11;
 }
 
 // For get the leader of the region.
