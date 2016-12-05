@@ -58,6 +58,7 @@ enum MergeState {
     NoMerge      = 0;
     Merging      = 1;
     Suspended    = 2;
+    Shutdown     = 3;
 }
 
 message RegionMergeState {
