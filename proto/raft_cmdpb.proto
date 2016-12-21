@@ -189,6 +189,15 @@ message StatusResponse {
     optional RegionDetailResponse region_detail   = 3;
 }
 
+message Tm {
+    required int64 sec    = 1;
+    required int32 nsec   = 2;
+}
+
+message Trace {
+    optional Tm arrive_time    = 1;
+}
+
 message RaftRequestHeader {
     optional uint64 region_id                   = 1;
     optional metapb.Peer peer                   = 2;
@@ -199,6 +208,7 @@ message RaftRequestHeader {
     
     optional metapb.RegionEpoch region_epoch    = 5;
     optional uint64 term                        = 6;
+    optional Trace trace                 = 7;
 }
 
 message RaftResponseHeader {
