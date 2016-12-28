@@ -9,3 +9,4 @@ pub mod mvccpb;
 pub mod pdpb;
 pub mod raft_cmdpb;
 pub mod raft_serverpb;
+pub mod statpb;
