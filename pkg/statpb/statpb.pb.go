@@ -9,6 +9,7 @@
 		statpb.proto
 
 	It has these top-level messages:
+		Timespec
 		PingReq
 		PingResp
 		RequestHeader
@@ -68,49 +69,76 @@ func (x *MessageType) UnmarshalJSON(data []byte) error {
 }
 func (MessageType) EnumDescriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{0} }
 
+type Timespec struct {
+	Sec              int64  `protobuf:"varint,1,opt,name=sec" json:"sec"`
+	Nsec             int32  `protobuf:"varint,2,opt,name=nsec" json:"nsec"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *Timespec) Reset()                    { *m = Timespec{} }
+func (m *Timespec) String() string            { return proto.CompactTextString(m) }
+func (*Timespec) ProtoMessage()               {}
+func (*Timespec) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{0} }
+
+func (m *Timespec) GetSec() int64 {
+	if m != nil {
+		return m.Sec
+	}
+	return 0
+}
+
+func (m *Timespec) GetNsec() int32 {
+	if m != nil {
+		return m.Nsec
+	}
+	return 0
+}
+
 type PingReq struct {
-	FromStoreId      *uint64 `protobuf:"varint,1,opt,name=from_store_id,json=fromStoreId" json:"from_store_id,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	PingTs           *Timespec `protobuf:"bytes,1,opt,name=ping_ts,json=pingTs" json:"ping_ts,omitempty"`
+	XXX_unrecognized []byte    `json:"-"`
 }
 
 func (m *PingReq) Reset()                    { *m = PingReq{} }
 func (m *PingReq) String() string            { return proto.CompactTextString(m) }
 func (*PingReq) ProtoMessage()               {}
-func (*PingReq) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{0} }
+func (*PingReq) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{1} }
 
-func (m *PingReq) GetFromStoreId() uint64 {
-	if m != nil && m.FromStoreId != nil {
-		return *m.FromStoreId
+func (m *PingReq) GetPingTs() *Timespec {
+	if m != nil {
+		return m.PingTs
 	}
-	return 0
+	return nil
 }
 
 type PingResp struct {
-	FromStoreId      *uint64 `protobuf:"varint,1,opt,name=from_store_id,json=fromStoreId" json:"from_store_id,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	PingTs           *Timespec `protobuf:"bytes,1,opt,name=ping_ts,json=pingTs" json:"ping_ts,omitempty"`
+	XXX_unrecognized []byte    `json:"-"`
 }
 
 func (m *PingResp) Reset()                    { *m = PingResp{} }
 func (m *PingResp) String() string            { return proto.CompactTextString(m) }
 func (*PingResp) ProtoMessage()               {}
-func (*PingResp) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{1} }
+func (*PingResp) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{2} }
 
-func (m *PingResp) GetFromStoreId() uint64 {
-	if m != nil && m.FromStoreId != nil {
-		return *m.FromStoreId
+func (m *PingResp) GetPingTs() *Timespec {
+	if m != nil {
+		return m.PingTs
 	}
-	return 0
+	return nil
 }
 
 type RequestHeader struct {
 	Id               *uint64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	FromStoreId      *uint64 `protobuf:"varint,2,opt,name=from_store_id,json=fromStoreId" json:"from_store_id,omitempty"`
+	ToStoreId        *uint64 `protobuf:"varint,3,opt,name=to_store_id,json=toStoreId" json:"to_store_id,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
 func (m *RequestHeader) Reset()                    { *m = RequestHeader{} }
 func (m *RequestHeader) String() string            { return proto.CompactTextString(m) }
 func (*RequestHeader) ProtoMessage()               {}
-func (*RequestHeader) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{2} }
+func (*RequestHeader) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{3} }
 
 func (m *RequestHeader) GetId() uint64 {
 	if m != nil && m.Id != nil {
@@ -119,19 +147,49 @@ func (m *RequestHeader) GetId() uint64 {
 	return 0
 }
 
+func (m *RequestHeader) GetFromStoreId() uint64 {
+	if m != nil && m.FromStoreId != nil {
+		return *m.FromStoreId
+	}
+	return 0
+}
+
+func (m *RequestHeader) GetToStoreId() uint64 {
+	if m != nil && m.ToStoreId != nil {
+		return *m.ToStoreId
+	}
+	return 0
+}
+
 type ResponseHeader struct {
 	Id               *uint64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+	FromStoreId      *uint64 `protobuf:"varint,2,opt,name=from_store_id,json=fromStoreId" json:"from_store_id,omitempty"`
+	ToStoreId        *uint64 `protobuf:"varint,3,opt,name=to_store_id,json=toStoreId" json:"to_store_id,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
 func (m *ResponseHeader) Reset()                    { *m = ResponseHeader{} }
 func (m *ResponseHeader) String() string            { return proto.CompactTextString(m) }
 func (*ResponseHeader) ProtoMessage()               {}
-func (*ResponseHeader) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{3} }
+func (*ResponseHeader) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{4} }
 
 func (m *ResponseHeader) GetId() uint64 {
 	if m != nil && m.Id != nil {
 		return *m.Id
+	}
+	return 0
+}
+
+func (m *ResponseHeader) GetFromStoreId() uint64 {
+	if m != nil && m.FromStoreId != nil {
+		return *m.FromStoreId
+	}
+	return 0
+}
+
+func (m *ResponseHeader) GetToStoreId() uint64 {
+	if m != nil && m.ToStoreId != nil {
+		return *m.ToStoreId
 	}
 	return 0
 }
@@ -146,7 +204,7 @@ type Request struct {
 func (m *Request) Reset()                    { *m = Request{} }
 func (m *Request) String() string            { return proto.CompactTextString(m) }
 func (*Request) ProtoMessage()               {}
-func (*Request) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{4} }
+func (*Request) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{5} }
 
 func (m *Request) GetHeader() *RequestHeader {
 	if m != nil {
@@ -179,7 +237,7 @@ type Response struct {
 func (m *Response) Reset()                    { *m = Response{} }
 func (m *Response) String() string            { return proto.CompactTextString(m) }
 func (*Response) ProtoMessage()               {}
-func (*Response) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{5} }
+func (*Response) Descriptor() ([]byte, []int) { return fileDescriptorStatpb, []int{6} }
 
 func (m *Response) GetHeader() *ResponseHeader {
 	if m != nil {
@@ -203,6 +261,7 @@ func (m *Response) GetPingResp() *PingResp {
 }
 
 func init() {
+	proto.RegisterType((*Timespec)(nil), "statpb.Timespec")
 	proto.RegisterType((*PingReq)(nil), "statpb.PingReq")
 	proto.RegisterType((*PingResp)(nil), "statpb.PingResp")
 	proto.RegisterType((*RequestHeader)(nil), "statpb.RequestHeader")
@@ -211,6 +270,33 @@ func init() {
 	proto.RegisterType((*Response)(nil), "statpb.Response")
 	proto.RegisterEnum("statpb.MessageType", MessageType_name, MessageType_value)
 }
+func (m *Timespec) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Timespec) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintStatpb(dAtA, i, uint64(m.Sec))
+	dAtA[i] = 0x10
+	i++
+	i = encodeVarintStatpb(dAtA, i, uint64(m.Nsec))
+	if m.XXX_unrecognized != nil {
+		i += copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	return i, nil
+}
+
 func (m *PingReq) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -226,10 +312,15 @@ func (m *PingReq) MarshalTo(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.FromStoreId != nil {
-		dAtA[i] = 0x8
+	if m.PingTs != nil {
+		dAtA[i] = 0xa
 		i++
-		i = encodeVarintStatpb(dAtA, i, uint64(*m.FromStoreId))
+		i = encodeVarintStatpb(dAtA, i, uint64(m.PingTs.Size()))
+		n1, err := m.PingTs.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n1
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(dAtA[i:], m.XXX_unrecognized)
@@ -252,10 +343,15 @@ func (m *PingResp) MarshalTo(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.FromStoreId != nil {
-		dAtA[i] = 0x8
+	if m.PingTs != nil {
+		dAtA[i] = 0xa
 		i++
-		i = encodeVarintStatpb(dAtA, i, uint64(*m.FromStoreId))
+		i = encodeVarintStatpb(dAtA, i, uint64(m.PingTs.Size()))
+		n2, err := m.PingTs.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n2
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(dAtA[i:], m.XXX_unrecognized)
@@ -283,6 +379,16 @@ func (m *RequestHeader) MarshalTo(dAtA []byte) (int, error) {
 		i++
 		i = encodeVarintStatpb(dAtA, i, uint64(*m.Id))
 	}
+	if m.FromStoreId != nil {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintStatpb(dAtA, i, uint64(*m.FromStoreId))
+	}
+	if m.ToStoreId != nil {
+		dAtA[i] = 0x18
+		i++
+		i = encodeVarintStatpb(dAtA, i, uint64(*m.ToStoreId))
+	}
 	if m.XXX_unrecognized != nil {
 		i += copy(dAtA[i:], m.XXX_unrecognized)
 	}
@@ -309,6 +415,16 @@ func (m *ResponseHeader) MarshalTo(dAtA []byte) (int, error) {
 		i++
 		i = encodeVarintStatpb(dAtA, i, uint64(*m.Id))
 	}
+	if m.FromStoreId != nil {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintStatpb(dAtA, i, uint64(*m.FromStoreId))
+	}
+	if m.ToStoreId != nil {
+		dAtA[i] = 0x18
+		i++
+		i = encodeVarintStatpb(dAtA, i, uint64(*m.ToStoreId))
+	}
 	if m.XXX_unrecognized != nil {
 		i += copy(dAtA[i:], m.XXX_unrecognized)
 	}
@@ -334,11 +450,11 @@ func (m *Request) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintStatpb(dAtA, i, uint64(m.Header.Size()))
-		n1, err := m.Header.MarshalTo(dAtA[i:])
+		n3, err := m.Header.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n1
+		i += n3
 	}
 	dAtA[i] = 0x10
 	i++
@@ -347,11 +463,11 @@ func (m *Request) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x1a
 		i++
 		i = encodeVarintStatpb(dAtA, i, uint64(m.PingReq.Size()))
-		n2, err := m.PingReq.MarshalTo(dAtA[i:])
+		n4, err := m.PingReq.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n2
+		i += n4
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(dAtA[i:], m.XXX_unrecognized)
@@ -378,11 +494,11 @@ func (m *Response) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintStatpb(dAtA, i, uint64(m.Header.Size()))
-		n3, err := m.Header.MarshalTo(dAtA[i:])
+		n5, err := m.Header.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n3
+		i += n5
 	}
 	dAtA[i] = 0x10
 	i++
@@ -391,11 +507,11 @@ func (m *Response) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x1a
 		i++
 		i = encodeVarintStatpb(dAtA, i, uint64(m.PingResp.Size()))
-		n4, err := m.PingResp.MarshalTo(dAtA[i:])
+		n6, err := m.PingResp.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n4
+		i += n6
 	}
 	if m.XXX_unrecognized != nil {
 		i += copy(dAtA[i:], m.XXX_unrecognized)
@@ -430,11 +546,23 @@ func encodeVarintStatpb(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return offset + 1
 }
+func (m *Timespec) Size() (n int) {
+	var l int
+	_ = l
+	n += 1 + sovStatpb(uint64(m.Sec))
+	n += 1 + sovStatpb(uint64(m.Nsec))
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
 func (m *PingReq) Size() (n int) {
 	var l int
 	_ = l
-	if m.FromStoreId != nil {
-		n += 1 + sovStatpb(uint64(*m.FromStoreId))
+	if m.PingTs != nil {
+		l = m.PingTs.Size()
+		n += 1 + l + sovStatpb(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -445,8 +573,9 @@ func (m *PingReq) Size() (n int) {
 func (m *PingResp) Size() (n int) {
 	var l int
 	_ = l
-	if m.FromStoreId != nil {
-		n += 1 + sovStatpb(uint64(*m.FromStoreId))
+	if m.PingTs != nil {
+		l = m.PingTs.Size()
+		n += 1 + l + sovStatpb(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -460,6 +589,12 @@ func (m *RequestHeader) Size() (n int) {
 	if m.Id != nil {
 		n += 1 + sovStatpb(uint64(*m.Id))
 	}
+	if m.FromStoreId != nil {
+		n += 1 + sovStatpb(uint64(*m.FromStoreId))
+	}
+	if m.ToStoreId != nil {
+		n += 1 + sovStatpb(uint64(*m.ToStoreId))
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -471,6 +606,12 @@ func (m *ResponseHeader) Size() (n int) {
 	_ = l
 	if m.Id != nil {
 		n += 1 + sovStatpb(uint64(*m.Id))
+	}
+	if m.FromStoreId != nil {
+		n += 1 + sovStatpb(uint64(*m.FromStoreId))
+	}
+	if m.ToStoreId != nil {
+		n += 1 + sovStatpb(uint64(*m.ToStoreId))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -527,6 +668,95 @@ func sovStatpb(x uint64) (n int) {
 func sozStatpb(x uint64) (n int) {
 	return sovStatpb(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+func (m *Timespec) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStatpb
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Timespec: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Timespec: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sec", wireType)
+			}
+			m.Sec = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStatpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Sec |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Nsec", wireType)
+			}
+			m.Nsec = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStatpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Nsec |= (int32(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStatpb(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStatpb
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *PingReq) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -557,10 +787,10 @@ func (m *PingReq) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FromStoreId", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PingTs", wireType)
 			}
-			var v uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowStatpb
@@ -570,12 +800,25 @@ func (m *PingReq) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
+				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			m.FromStoreId = &v
+			if msglen < 0 {
+				return ErrInvalidLengthStatpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.PingTs == nil {
+				m.PingTs = &Timespec{}
+			}
+			if err := m.PingTs.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipStatpb(dAtA[iNdEx:])
@@ -628,10 +871,10 @@ func (m *PingResp) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FromStoreId", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PingTs", wireType)
 			}
-			var v uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowStatpb
@@ -641,12 +884,25 @@ func (m *PingResp) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint64(b) & 0x7F) << shift
+				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			m.FromStoreId = &v
+			if msglen < 0 {
+				return ErrInvalidLengthStatpb
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.PingTs == nil {
+				m.PingTs = &Timespec{}
+			}
+			if err := m.PingTs.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipStatpb(dAtA[iNdEx:])
@@ -718,6 +974,46 @@ func (m *RequestHeader) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.Id = &v
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FromStoreId", wireType)
+			}
+			var v uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStatpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.FromStoreId = &v
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ToStoreId", wireType)
+			}
+			var v uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStatpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.ToStoreId = &v
 		default:
 			iNdEx = preIndex
 			skippy, err := skipStatpb(dAtA[iNdEx:])
@@ -789,6 +1085,46 @@ func (m *ResponseHeader) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.Id = &v
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FromStoreId", wireType)
+			}
+			var v uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStatpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.FromStoreId = &v
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ToStoreId", wireType)
+			}
+			var v uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStatpb
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.ToStoreId = &v
 		default:
 			iNdEx = preIndex
 			skippy, err := skipStatpb(dAtA[iNdEx:])
@@ -1191,25 +1527,29 @@ var (
 func init() { proto.RegisterFile("statpb.proto", fileDescriptorStatpb) }
 
 var fileDescriptorStatpb = []byte{
-	// 312 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xa4, 0x90, 0xcd, 0x4a, 0xc3, 0x40,
-	0x10, 0x80, 0xbb, 0xb5, 0x34, 0xeb, 0xd4, 0xd6, 0xb2, 0xfe, 0x15, 0x0f, 0x69, 0xc9, 0xa9, 0x14,
-	0x1a, 0xa1, 0xf8, 0x04, 0x3d, 0xe9, 0x41, 0x90, 0xd5, 0x7b, 0xa8, 0x64, 0x5c, 0x73, 0x68, 0x76,
-	0x93, 0x5d, 0x0f, 0x7d, 0x13, 0xf1, 0xe2, 0xeb, 0xf4, 0xe8, 0x13, 0x88, 0xc4, 0x17, 0x91, 0x4d,
-	0x36, 0xda, 0x0a, 0x82, 0xe0, 0x6d, 0x76, 0xe6, 0x9b, 0x99, 0x6f, 0x16, 0xf6, 0xb4, 0x59, 0x18,
-	0x75, 0x17, 0xaa, 0x5c, 0x1a, 0xc9, 0xda, 0xd5, 0xeb, 0xf4, 0x50, 0x48, 0x21, 0xcb, 0xd4, 0x99,
-	0x8d, 0xaa, 0x6a, 0x30, 0x05, 0xef, 0x3a, 0x49, 0x05, 0xc7, 0x8c, 0x05, 0xd0, 0xbd, 0xcf, 0xe5,
-	0x32, 0xd2, 0x46, 0xe6, 0x18, 0x25, 0xf1, 0x80, 0x8c, 0xc8, 0xb8, 0xc5, 0x3b, 0x36, 0x79, 0x63,
-	0x73, 0x97, 0x71, 0x10, 0x02, 0xad, 0x70, 0xad, 0xfe, 0xc4, 0x0f, 0xa1, 0xcb, 0x31, 0x7b, 0x44,
-	0x6d, 0x2e, 0x70, 0x11, 0x63, 0xce, 0x7a, 0xd0, 0xfc, 0x22, 0x9b, 0x49, 0x1c, 0x8c, 0xa0, 0x67,
-	0x87, 0xc9, 0x54, 0xe3, 0x2f, 0xc4, 0x33, 0x01, 0xcf, 0xcd, 0x60, 0x53, 0x68, 0x3f, 0x94, 0x54,
-	0x59, 0xef, 0xcc, 0x8e, 0x42, 0x77, 0xea, 0xd6, 0x12, 0xee, 0x20, 0x76, 0x0e, 0x74, 0xa9, 0x45,
-	0x64, 0x56, 0x0a, 0x07, 0xcd, 0x11, 0x19, 0xf7, 0x66, 0x07, 0x75, 0xc3, 0x15, 0x6a, 0xbd, 0x10,
-	0x78, 0xbb, 0x52, 0x38, 0x6f, 0xad, 0xdf, 0x86, 0x0d, 0xee, 0x2d, 0xb5, 0xb0, 0x4f, 0x36, 0x01,
-	0xaa, 0x92, 0x54, 0x44, 0x39, 0x66, 0x83, 0x9d, 0x72, 0xcd, 0x7e, 0xdd, 0xe5, 0xbe, 0x8a, 0x7b,
-	0xaa, 0x0a, 0x82, 0x17, 0x02, 0xb4, 0xf6, 0x67, 0xe1, 0x0f, 0xbb, 0xe3, 0x6f, 0xbb, 0xcd, 0x0b,
-	0xff, 0xa9, 0x37, 0x85, 0x5d, 0xa7, 0xa7, 0x95, 0xf3, 0xeb, 0x6f, 0xfb, 0x69, 0xc5, 0xa9, 0x72,
-	0xd1, 0xe4, 0x04, 0x3a, 0x1b, 0xc3, 0x18, 0x85, 0x96, 0x85, 0xfa, 0x8d, 0x79, 0x7f, 0x5d, 0xf8,
-	0xe4, 0xb5, 0xf0, 0xc9, 0x7b, 0xe1, 0x93, 0xa7, 0x0f, 0xbf, 0xf1, 0x19, 0x00, 0x00, 0xff, 0xff,
-	0x42, 0x49, 0x72, 0xf7, 0x38, 0x02, 0x00, 0x00,
+	// 384 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xb4, 0x91, 0x41, 0x6f, 0xda, 0x30,
+	0x14, 0xc7, 0x31, 0x64, 0x24, 0xbc, 0x0c, 0x16, 0x79, 0x1b, 0x43, 0x3b, 0x64, 0x28, 0x27, 0x86,
+	0x04, 0x93, 0x10, 0xbb, 0xed, 0xc4, 0x69, 0x3b, 0x4c, 0xaa, 0x5c, 0xee, 0x11, 0x25, 0xaf, 0x69,
+	0x0e, 0x89, 0x9d, 0xd8, 0x3d, 0xf0, 0x4d, 0xaa, 0x5e, 0xfa, 0x75, 0x38, 0xf6, 0x13, 0x54, 0x15,
+	0xfd, 0x22, 0x95, 0x8d, 0x23, 0xa0, 0xb7, 0xaa, 0xea, 0xcd, 0x7e, 0xef, 0xff, 0xf7, 0xfb, 0xf9,
+	0xff, 0xe0, 0xa3, 0x54, 0x2b, 0x25, 0x2e, 0xa6, 0xa2, 0xe2, 0x8a, 0xd3, 0xf6, 0xfe, 0xf6, 0xfd,
+	0x4b, 0xca, 0x53, 0x6e, 0x4a, 0xbf, 0xf4, 0x69, 0xdf, 0x8d, 0xfe, 0x80, 0xb7, 0xcc, 0x72, 0x94,
+	0x02, 0xd7, 0xb4, 0x0f, 0x2d, 0x89, 0xeb, 0x01, 0x19, 0x92, 0x51, 0x6b, 0xe1, 0x6c, 0x1f, 0x7e,
+	0x34, 0x98, 0x2e, 0xd0, 0x01, 0x38, 0x85, 0x6e, 0x34, 0x87, 0x64, 0xf4, 0xc1, 0x36, 0x4c, 0x25,
+	0x9a, 0x83, 0x7b, 0x96, 0x15, 0x29, 0xc3, 0x92, 0xfe, 0x04, 0x57, 0x64, 0x45, 0x1a, 0x2b, 0x69,
+	0x1e, 0xf0, 0x67, 0xc1, 0xd4, 0x62, 0xd4, 0xef, 0xb3, 0xb6, 0x16, 0x2c, 0x65, 0xf4, 0x1b, 0xbc,
+	0xbd, 0x4b, 0x8a, 0xd7, 0xd8, 0xd6, 0xd0, 0x65, 0x58, 0x5e, 0xa3, 0x54, 0x7f, 0x71, 0x95, 0x60,
+	0x45, 0x7b, 0xd0, 0xcc, 0x12, 0x63, 0x73, 0x58, 0x33, 0x4b, 0x68, 0x04, 0xdd, 0xcb, 0x8a, 0xe7,
+	0xb1, 0x54, 0xbc, 0xc2, 0x38, 0x4b, 0x0c, 0xb0, 0xc3, 0x7c, 0x5d, 0x3c, 0xd7, 0xb5, 0x7f, 0x09,
+	0x0d, 0xc1, 0x57, 0xfc, 0xa0, 0x68, 0x19, 0x45, 0x47, 0x71, 0xdb, 0x8f, 0x12, 0xe8, 0x69, 0x2e,
+	0x5e, 0x48, 0x7c, 0xc7, 0x29, 0xb7, 0x04, 0x5c, 0xfb, 0x17, 0x3a, 0x81, 0xf6, 0x95, 0x99, 0x64,
+	0x03, 0xf8, 0x5a, 0x07, 0x70, 0xf2, 0x59, 0x66, 0x45, 0x74, 0x0e, 0x5e, 0x2e, 0xd3, 0x58, 0x6d,
+	0x04, 0x9a, 0xc9, 0xbd, 0xd9, 0xe7, 0xda, 0xf0, 0x1f, 0xa5, 0x5c, 0xa5, 0xb8, 0xdc, 0x08, 0xb4,
+	0x5b, 0x72, 0x73, 0x99, 0xea, 0x2b, 0x1d, 0x83, 0x67, 0x62, 0xae, 0xb0, 0x34, 0x34, 0xfe, 0xec,
+	0x53, 0xed, 0xb2, 0x0b, 0x64, 0x66, 0x0f, 0x0c, 0xcb, 0xe8, 0x8e, 0x80, 0x57, 0x67, 0x40, 0xa7,
+	0x2f, 0xe8, 0xfa, 0x07, 0xba, 0xe3, 0x94, 0xde, 0x88, 0x37, 0x81, 0x8e, 0xc5, 0x93, 0xc2, 0xf2,
+	0x05, 0xa7, 0x7c, 0x52, 0x30, 0x4f, 0xd8, 0xd3, 0xf8, 0x1b, 0xf8, 0x47, 0x8f, 0x51, 0x0f, 0x1c,
+	0x2d, 0x0a, 0x1a, 0x8b, 0x60, 0xbb, 0x0b, 0xc9, 0xfd, 0x2e, 0x24, 0x8f, 0xbb, 0x90, 0xdc, 0x3c,
+	0x85, 0x8d, 0xe7, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc0, 0x43, 0xf9, 0xaa, 0x0c, 0x03, 0x00, 0x00,
 }
