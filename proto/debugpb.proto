@@ -125,10 +125,10 @@ message PrefixKeyFilterResponse {
 
     message PrefixKeyInfo {
         string PrefixKey = 1;
-        CfSize size = 2;
+        repeated CfSize size = 2;
     }
 
-    repeated PrefixKeyInfo Info = 1;
+    repeated PrefixKeyInfo infos = 1;
 }
 
 message ScanMvccRequest {
