@@ -48,6 +48,10 @@ service PD {
     rpc PutClusterConfig(PutClusterConfigRequest) returns (PutClusterConfigResponse) {}
 
     rpc ScatterRegion(ScatterRegionRequest) returns (ScatterRegionResponse) {}
+
+    rpc GetGCSafepoint(GetGCSafepointRequest) returns (GetGCSafepointResponse) {}
+
+    rpc PutGCSafepoint(PutGCSafepointRequest) returns (PutGCSafepointResponse) {}
 }
 
 message RequestHeader {
@@ -362,5 +366,25 @@ message ScatterRegionRequest {
 }
 
 message ScatterRegionResponse {
+    ResponseHeader header = 1;
+}
+
+message GetGCSafepointRequest {
+    RequestHeader header = 1;
+}
+
+message GetGCSafepointResponse {
+    ResponseHeader header = 1;
+
+    uint64 safepoint = 2;
+}
+
+message PutGCSafepointRequest {
+    RequestHeader header = 1;
+
+    uint64 safepoint = 2;
+}
+
+message PutGCSafepointResponse {
     ResponseHeader header = 1;
 }
