@@ -49,9 +49,11 @@ service PD {
 
     rpc ScatterRegion(ScatterRegionRequest) returns (ScatterRegionResponse) {}
 
-    rpc GetGCInfo(GetGCInfoRequest) returns (GetGCInfoResponse) {}
+    rpc GetUserKV(GetUserKVRequest) returns (GetUserKVResponse) {}
 
-    rpc PutGCInfo(PutGCInfoRequest) returns (PutGCInfoResponse) {}
+    rpc PutUserKV(PutUserKVRequest) returns (PutUserKVResponse) {}
+
+    rpc DeleteUserKV(DeleteUserKVRequest) returns (DeleteUserKVResponse) {}
 }
 
 message RequestHeader {
@@ -369,24 +371,32 @@ message ScatterRegionResponse {
     ResponseHeader header = 1;
 }
 
-message GetGCInfoRequest {
+message GetUserKVRequest {
     RequestHeader header = 1;
+    string key = 2;
 }
 
-message GetGCInfoResponse {
+message GetUserKVResponse {
     ResponseHeader header = 1;
-
-    uint64 safepoint = 2;
-    uint64 duration = 3;
+    string key = 2;
+    string value = 3;
 }
 
-message PutGCInfoRequest {
+message PutUserKVRequest {
     RequestHeader header = 1;
-
-    uint64 safepoint = 2;
-    uint64 duration = 3;
 }
 
-message PutGCInfoResponse {
+message PutUserKVResponse {
+    ResponseHeader header = 1;
+    string key = 2;
+    string value = 3;
+}
+
+message DeleteUserKVRequest {
+    RequestHeader header = 1;
+    string key = 2;
+}
+
+message DeleteUserKVResponse {
     ResponseHeader header = 1;
 }

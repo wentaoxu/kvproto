@@ -137,16 +137,23 @@ const METHOD_PD_SCATTER_REGION: ::grpcio::Method<super::pdpb::ScatterRegionReque
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_PD_GET_GC_INFO: ::grpcio::Method<super::pdpb::GetGCInfoRequest, super::pdpb::GetGCInfoResponse> = ::grpcio::Method {
+const METHOD_PD_GET_USER_KV: ::grpcio::Method<super::pdpb::GetUserKVRequest, super::pdpb::GetUserKVResponse> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
-    name: "/pdpb.PD/GetGCInfo",
+    name: "/pdpb.PD/GetUserKV",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_PD_PUT_GC_INFO: ::grpcio::Method<super::pdpb::PutGCInfoRequest, super::pdpb::PutGCInfoResponse> = ::grpcio::Method {
+const METHOD_PD_PUT_USER_KV: ::grpcio::Method<super::pdpb::PutUserKVRequest, super::pdpb::PutUserKVResponse> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
-    name: "/pdpb.PD/PutGCInfo",
+    name: "/pdpb.PD/PutUserKV",
+    req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+    resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+};
+
+const METHOD_PD_DELETE_USER_KV: ::grpcio::Method<super::pdpb::DeleteUserKVRequest, super::pdpb::DeleteUserKVResponse> = ::grpcio::Method {
+    ty: ::grpcio::MethodType::Unary,
+    name: "/pdpb.PD/DeleteUserKV",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
@@ -418,36 +425,52 @@ impl PdClient {
         self.scatter_region_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn get_gc_info_opt(&self, req: &super::pdpb::GetGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::GetGCInfoResponse> {
-        self.client.unary_call(&METHOD_PD_GET_GC_INFO, req, opt)
+    pub fn get_user_kv_opt(&self, req: &super::pdpb::GetUserKVRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::GetUserKVResponse> {
+        self.client.unary_call(&METHOD_PD_GET_USER_KV, req, opt)
     }
 
-    pub fn get_gc_info(&self, req: &super::pdpb::GetGCInfoRequest) -> ::grpcio::Result<super::pdpb::GetGCInfoResponse> {
-        self.get_gc_info_opt(req, ::grpcio::CallOption::default())
+    pub fn get_user_kv(&self, req: &super::pdpb::GetUserKVRequest) -> ::grpcio::Result<super::pdpb::GetUserKVResponse> {
+        self.get_user_kv_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn get_gc_info_async_opt(&self, req: &super::pdpb::GetGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetGCInfoResponse>> {
-        self.client.unary_call_async(&METHOD_PD_GET_GC_INFO, req, opt)
+    pub fn get_user_kv_async_opt(&self, req: &super::pdpb::GetUserKVRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetUserKVResponse>> {
+        self.client.unary_call_async(&METHOD_PD_GET_USER_KV, req, opt)
     }
 
-    pub fn get_gc_info_async(&self, req: &super::pdpb::GetGCInfoRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetGCInfoResponse>> {
-        self.get_gc_info_async_opt(req, ::grpcio::CallOption::default())
+    pub fn get_user_kv_async(&self, req: &super::pdpb::GetUserKVRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetUserKVResponse>> {
+        self.get_user_kv_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_gc_info_opt(&self, req: &super::pdpb::PutGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::PutGCInfoResponse> {
-        self.client.unary_call(&METHOD_PD_PUT_GC_INFO, req, opt)
+    pub fn put_user_kv_opt(&self, req: &super::pdpb::PutUserKVRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::PutUserKVResponse> {
+        self.client.unary_call(&METHOD_PD_PUT_USER_KV, req, opt)
     }
 
-    pub fn put_gc_info(&self, req: &super::pdpb::PutGCInfoRequest) -> ::grpcio::Result<super::pdpb::PutGCInfoResponse> {
-        self.put_gc_info_opt(req, ::grpcio::CallOption::default())
+    pub fn put_user_kv(&self, req: &super::pdpb::PutUserKVRequest) -> ::grpcio::Result<super::pdpb::PutUserKVResponse> {
+        self.put_user_kv_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_gc_info_async_opt(&self, req: &super::pdpb::PutGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutGCInfoResponse>> {
-        self.client.unary_call_async(&METHOD_PD_PUT_GC_INFO, req, opt)
+    pub fn put_user_kv_async_opt(&self, req: &super::pdpb::PutUserKVRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutUserKVResponse>> {
+        self.client.unary_call_async(&METHOD_PD_PUT_USER_KV, req, opt)
     }
 
-    pub fn put_gc_info_async(&self, req: &super::pdpb::PutGCInfoRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutGCInfoResponse>> {
-        self.put_gc_info_async_opt(req, ::grpcio::CallOption::default())
+    pub fn put_user_kv_async(&self, req: &super::pdpb::PutUserKVRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutUserKVResponse>> {
+        self.put_user_kv_async_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn delete_user_kv_opt(&self, req: &super::pdpb::DeleteUserKVRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::DeleteUserKVResponse> {
+        self.client.unary_call(&METHOD_PD_DELETE_USER_KV, req, opt)
+    }
+
+    pub fn delete_user_kv(&self, req: &super::pdpb::DeleteUserKVRequest) -> ::grpcio::Result<super::pdpb::DeleteUserKVResponse> {
+        self.delete_user_kv_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn delete_user_kv_async_opt(&self, req: &super::pdpb::DeleteUserKVRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::DeleteUserKVResponse>> {
+        self.client.unary_call_async(&METHOD_PD_DELETE_USER_KV, req, opt)
+    }
+
+    pub fn delete_user_kv_async(&self, req: &super::pdpb::DeleteUserKVRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::DeleteUserKVResponse>> {
+        self.delete_user_kv_async_opt(req, ::grpcio::CallOption::default())
     }
     pub fn spawn<F>(&self, f: F) where F: ::futures::Future<Item = (), Error = ()> + Send + 'static {
         self.client.spawn(f)
@@ -472,8 +495,9 @@ pub trait Pd {
     fn get_cluster_config(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::GetClusterConfigRequest, sink: ::grpcio::UnarySink<super::pdpb::GetClusterConfigResponse>);
     fn put_cluster_config(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::PutClusterConfigRequest, sink: ::grpcio::UnarySink<super::pdpb::PutClusterConfigResponse>);
     fn scatter_region(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::ScatterRegionRequest, sink: ::grpcio::UnarySink<super::pdpb::ScatterRegionResponse>);
-    fn get_gc_info(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::GetGCInfoRequest, sink: ::grpcio::UnarySink<super::pdpb::GetGCInfoResponse>);
-    fn put_gc_info(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::PutGCInfoRequest, sink: ::grpcio::UnarySink<super::pdpb::PutGCInfoResponse>);
+    fn get_user_kv(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::GetUserKVRequest, sink: ::grpcio::UnarySink<super::pdpb::GetUserKVResponse>);
+    fn put_user_kv(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::PutUserKVRequest, sink: ::grpcio::UnarySink<super::pdpb::PutUserKVResponse>);
+    fn delete_user_kv(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::DeleteUserKVRequest, sink: ::grpcio::UnarySink<super::pdpb::DeleteUserKVResponse>);
 }
 
 pub fn create_pd<S: Pd + Send + Clone + 'static>(s: S) -> ::grpcio::Service {
@@ -547,12 +571,16 @@ pub fn create_pd<S: Pd + Send + Clone + 'static>(s: S) -> ::grpcio::Service {
         instance.scatter_region(ctx, req, resp)
     });
     let instance = s.clone();
-    builder = builder.add_unary_handler(&METHOD_PD_GET_GC_INFO, move |ctx, req, resp| {
-        instance.get_gc_info(ctx, req, resp)
+    builder = builder.add_unary_handler(&METHOD_PD_GET_USER_KV, move |ctx, req, resp| {
+        instance.get_user_kv(ctx, req, resp)
     });
     let instance = s.clone();
-    builder = builder.add_unary_handler(&METHOD_PD_PUT_GC_INFO, move |ctx, req, resp| {
-        instance.put_gc_info(ctx, req, resp)
+    builder = builder.add_unary_handler(&METHOD_PD_PUT_USER_KV, move |ctx, req, resp| {
+        instance.put_user_kv(ctx, req, resp)
+    });
+    let instance = s.clone();
+    builder = builder.add_unary_handler(&METHOD_PD_DELETE_USER_KV, move |ctx, req, resp| {
+        instance.delete_user_kv(ctx, req, resp)
     });
     builder.build()
 }
