@@ -49,9 +49,9 @@ service PD {
 
     rpc ScatterRegion(ScatterRegionRequest) returns (ScatterRegionResponse) {}
 
-    rpc GetGCSafepoint(GetGCSafepointRequest) returns (GetGCSafepointResponse) {}
+    rpc GetGCInfo(GetGCInfoRequest) returns (GetGCInfoResponse) {}
 
-    rpc PutGCSafepoint(PutGCSafepointRequest) returns (PutGCSafepointResponse) {}
+    rpc PutGCInfo(PutGCInfoRequest) returns (PutGCInfoResponse) {}
 }
 
 message RequestHeader {
@@ -369,22 +369,24 @@ message ScatterRegionResponse {
     ResponseHeader header = 1;
 }
 
-message GetGCSafepointRequest {
+message GetGCInfoRequest {
     RequestHeader header = 1;
 }
 
-message GetGCSafepointResponse {
+message GetGCInfoResponse {
     ResponseHeader header = 1;
 
     uint64 safepoint = 2;
+    uint64 duration = 3;
 }
 
-message PutGCSafepointRequest {
+message PutGCInfoRequest {
     RequestHeader header = 1;
 
     uint64 safepoint = 2;
+    uint64 duration = 3;
 }
 
-message PutGCSafepointResponse {
+message PutGCInfoResponse {
     ResponseHeader header = 1;
 }

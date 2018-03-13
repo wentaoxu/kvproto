@@ -137,16 +137,16 @@ const METHOD_PD_SCATTER_REGION: ::grpcio::Method<super::pdpb::ScatterRegionReque
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_PD_GET_GC_SAFEPOINT: ::grpcio::Method<super::pdpb::GetGCSafepointRequest, super::pdpb::GetGCSafepointResponse> = ::grpcio::Method {
+const METHOD_PD_GET_GC_INFO: ::grpcio::Method<super::pdpb::GetGCInfoRequest, super::pdpb::GetGCInfoResponse> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
-    name: "/pdpb.PD/GetGCSafepoint",
+    name: "/pdpb.PD/GetGCInfo",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_PD_PUT_GC_SAFEPOINT: ::grpcio::Method<super::pdpb::PutGCSafepointRequest, super::pdpb::PutGCSafepointResponse> = ::grpcio::Method {
+const METHOD_PD_PUT_GC_INFO: ::grpcio::Method<super::pdpb::PutGCInfoRequest, super::pdpb::PutGCInfoResponse> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
-    name: "/pdpb.PD/PutGCSafepoint",
+    name: "/pdpb.PD/PutGCInfo",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
@@ -418,36 +418,36 @@ impl PdClient {
         self.scatter_region_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn get_gc_safepoint_opt(&self, req: &super::pdpb::GetGCSafepointRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::GetGCSafepointResponse> {
-        self.client.unary_call(&METHOD_PD_GET_GC_SAFEPOINT, req, opt)
+    pub fn get_gc_info_opt(&self, req: &super::pdpb::GetGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::GetGCInfoResponse> {
+        self.client.unary_call(&METHOD_PD_GET_GC_INFO, req, opt)
     }
 
-    pub fn get_gc_safepoint(&self, req: &super::pdpb::GetGCSafepointRequest) -> ::grpcio::Result<super::pdpb::GetGCSafepointResponse> {
-        self.get_gc_safepoint_opt(req, ::grpcio::CallOption::default())
+    pub fn get_gc_info(&self, req: &super::pdpb::GetGCInfoRequest) -> ::grpcio::Result<super::pdpb::GetGCInfoResponse> {
+        self.get_gc_info_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn get_gc_safepoint_async_opt(&self, req: &super::pdpb::GetGCSafepointRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetGCSafepointResponse>> {
-        self.client.unary_call_async(&METHOD_PD_GET_GC_SAFEPOINT, req, opt)
+    pub fn get_gc_info_async_opt(&self, req: &super::pdpb::GetGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetGCInfoResponse>> {
+        self.client.unary_call_async(&METHOD_PD_GET_GC_INFO, req, opt)
     }
 
-    pub fn get_gc_safepoint_async(&self, req: &super::pdpb::GetGCSafepointRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetGCSafepointResponse>> {
-        self.get_gc_safepoint_async_opt(req, ::grpcio::CallOption::default())
+    pub fn get_gc_info_async(&self, req: &super::pdpb::GetGCInfoRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::GetGCInfoResponse>> {
+        self.get_gc_info_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_gc_safepoint_opt(&self, req: &super::pdpb::PutGCSafepointRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::PutGCSafepointResponse> {
-        self.client.unary_call(&METHOD_PD_PUT_GC_SAFEPOINT, req, opt)
+    pub fn put_gc_info_opt(&self, req: &super::pdpb::PutGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::pdpb::PutGCInfoResponse> {
+        self.client.unary_call(&METHOD_PD_PUT_GC_INFO, req, opt)
     }
 
-    pub fn put_gc_safepoint(&self, req: &super::pdpb::PutGCSafepointRequest) -> ::grpcio::Result<super::pdpb::PutGCSafepointResponse> {
-        self.put_gc_safepoint_opt(req, ::grpcio::CallOption::default())
+    pub fn put_gc_info(&self, req: &super::pdpb::PutGCInfoRequest) -> ::grpcio::Result<super::pdpb::PutGCInfoResponse> {
+        self.put_gc_info_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_gc_safepoint_async_opt(&self, req: &super::pdpb::PutGCSafepointRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutGCSafepointResponse>> {
-        self.client.unary_call_async(&METHOD_PD_PUT_GC_SAFEPOINT, req, opt)
+    pub fn put_gc_info_async_opt(&self, req: &super::pdpb::PutGCInfoRequest, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutGCInfoResponse>> {
+        self.client.unary_call_async(&METHOD_PD_PUT_GC_INFO, req, opt)
     }
 
-    pub fn put_gc_safepoint_async(&self, req: &super::pdpb::PutGCSafepointRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutGCSafepointResponse>> {
-        self.put_gc_safepoint_async_opt(req, ::grpcio::CallOption::default())
+    pub fn put_gc_info_async(&self, req: &super::pdpb::PutGCInfoRequest) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::pdpb::PutGCInfoResponse>> {
+        self.put_gc_info_async_opt(req, ::grpcio::CallOption::default())
     }
     pub fn spawn<F>(&self, f: F) where F: ::futures::Future<Item = (), Error = ()> + Send + 'static {
         self.client.spawn(f)
@@ -472,8 +472,8 @@ pub trait Pd {
     fn get_cluster_config(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::GetClusterConfigRequest, sink: ::grpcio::UnarySink<super::pdpb::GetClusterConfigResponse>);
     fn put_cluster_config(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::PutClusterConfigRequest, sink: ::grpcio::UnarySink<super::pdpb::PutClusterConfigResponse>);
     fn scatter_region(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::ScatterRegionRequest, sink: ::grpcio::UnarySink<super::pdpb::ScatterRegionResponse>);
-    fn get_gc_safepoint(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::GetGCSafepointRequest, sink: ::grpcio::UnarySink<super::pdpb::GetGCSafepointResponse>);
-    fn put_gc_safepoint(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::PutGCSafepointRequest, sink: ::grpcio::UnarySink<super::pdpb::PutGCSafepointResponse>);
+    fn get_gc_info(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::GetGCInfoRequest, sink: ::grpcio::UnarySink<super::pdpb::GetGCInfoResponse>);
+    fn put_gc_info(&self, ctx: ::grpcio::RpcContext, req: super::pdpb::PutGCInfoRequest, sink: ::grpcio::UnarySink<super::pdpb::PutGCInfoResponse>);
 }
 
 pub fn create_pd<S: Pd + Send + Clone + 'static>(s: S) -> ::grpcio::Service {
@@ -547,12 +547,12 @@ pub fn create_pd<S: Pd + Send + Clone + 'static>(s: S) -> ::grpcio::Service {
         instance.scatter_region(ctx, req, resp)
     });
     let instance = s.clone();
-    builder = builder.add_unary_handler(&METHOD_PD_GET_GC_SAFEPOINT, move |ctx, req, resp| {
-        instance.get_gc_safepoint(ctx, req, resp)
+    builder = builder.add_unary_handler(&METHOD_PD_GET_GC_INFO, move |ctx, req, resp| {
+        instance.get_gc_info(ctx, req, resp)
     });
     let instance = s.clone();
-    builder = builder.add_unary_handler(&METHOD_PD_PUT_GC_SAFEPOINT, move |ctx, req, resp| {
-        instance.put_gc_safepoint(ctx, req, resp)
+    builder = builder.add_unary_handler(&METHOD_PD_PUT_GC_INFO, move |ctx, req, resp| {
+        instance.put_gc_info(ctx, req, resp)
     });
     builder.build()
 }

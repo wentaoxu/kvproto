@@ -11373,7 +11373,7 @@ impl ::protobuf::reflect::ProtobufValue for ScatterRegionResponse {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct GetGCSafepointRequest {
+pub struct GetGCInfoRequest {
     // message fields
     pub header: ::protobuf::SingularPtrField<RequestHeader>,
     // special fields
@@ -11382,20 +11382,20 @@ pub struct GetGCSafepointRequest {
 }
 
 // see codegen.rs for the explanation why impl Sync explicitly
-unsafe impl ::std::marker::Sync for GetGCSafepointRequest {}
+unsafe impl ::std::marker::Sync for GetGCInfoRequest {}
 
-impl GetGCSafepointRequest {
-    pub fn new() -> GetGCSafepointRequest {
+impl GetGCInfoRequest {
+    pub fn new() -> GetGCInfoRequest {
         ::std::default::Default::default()
     }
 
-    pub fn default_instance() -> &'static GetGCSafepointRequest {
-        static mut instance: ::protobuf::lazy::Lazy<GetGCSafepointRequest> = ::protobuf::lazy::Lazy {
+    pub fn default_instance() -> &'static GetGCInfoRequest {
+        static mut instance: ::protobuf::lazy::Lazy<GetGCInfoRequest> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const GetGCSafepointRequest,
+            ptr: 0 as *const GetGCInfoRequest,
         };
         unsafe {
-            instance.get(GetGCSafepointRequest::new)
+            instance.get(GetGCInfoRequest::new)
         }
     }
 
@@ -11441,7 +11441,7 @@ impl GetGCSafepointRequest {
     }
 }
 
-impl ::protobuf::Message for GetGCSafepointRequest {
+impl ::protobuf::Message for GetGCInfoRequest {
     fn is_initialized(&self) -> bool {
         for v in &self.header {
             if !v.is_initialized() {
@@ -11516,12 +11516,12 @@ impl ::protobuf::Message for GetGCSafepointRequest {
     }
 }
 
-impl ::protobuf::MessageStatic for GetGCSafepointRequest {
-    fn new() -> GetGCSafepointRequest {
-        GetGCSafepointRequest::new()
+impl ::protobuf::MessageStatic for GetGCInfoRequest {
+    fn new() -> GetGCInfoRequest {
+        GetGCInfoRequest::new()
     }
 
-    fn descriptor_static(_: ::std::option::Option<GetGCSafepointRequest>) -> &'static ::protobuf::reflect::MessageDescriptor {
+    fn descriptor_static(_: ::std::option::Option<GetGCInfoRequest>) -> &'static ::protobuf::reflect::MessageDescriptor {
         static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
             ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
@@ -11531,11 +11531,11 @@ impl ::protobuf::MessageStatic for GetGCSafepointRequest {
                 let mut fields = ::std::vec::Vec::new();
                 fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RequestHeader>>(
                     "header",
-                    GetGCSafepointRequest::get_header_for_reflect,
-                    GetGCSafepointRequest::mut_header_for_reflect,
+                    GetGCInfoRequest::get_header_for_reflect,
+                    GetGCInfoRequest::mut_header_for_reflect,
                 ));
-                ::protobuf::reflect::MessageDescriptor::new::<GetGCSafepointRequest>(
-                    "GetGCSafepointRequest",
+                ::protobuf::reflect::MessageDescriptor::new::<GetGCInfoRequest>(
+                    "GetGCInfoRequest",
                     fields,
                     file_descriptor_proto()
                 )
@@ -11544,50 +11544,51 @@ impl ::protobuf::MessageStatic for GetGCSafepointRequest {
     }
 }
 
-impl ::protobuf::Clear for GetGCSafepointRequest {
+impl ::protobuf::Clear for GetGCInfoRequest {
     fn clear(&mut self) {
         self.clear_header();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for GetGCSafepointRequest {
+impl ::std::fmt::Debug for GetGCInfoRequest {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for GetGCSafepointRequest {
+impl ::protobuf::reflect::ProtobufValue for GetGCInfoRequest {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct GetGCSafepointResponse {
+pub struct GetGCInfoResponse {
     // message fields
     pub header: ::protobuf::SingularPtrField<ResponseHeader>,
     pub safepoint: u64,
+    pub duration: u64,
     // special fields
     unknown_fields: ::protobuf::UnknownFields,
     cached_size: ::protobuf::CachedSize,
 }
 
 // see codegen.rs for the explanation why impl Sync explicitly
-unsafe impl ::std::marker::Sync for GetGCSafepointResponse {}
+unsafe impl ::std::marker::Sync for GetGCInfoResponse {}
 
-impl GetGCSafepointResponse {
-    pub fn new() -> GetGCSafepointResponse {
+impl GetGCInfoResponse {
+    pub fn new() -> GetGCInfoResponse {
         ::std::default::Default::default()
     }
 
-    pub fn default_instance() -> &'static GetGCSafepointResponse {
-        static mut instance: ::protobuf::lazy::Lazy<GetGCSafepointResponse> = ::protobuf::lazy::Lazy {
+    pub fn default_instance() -> &'static GetGCInfoResponse {
+        static mut instance: ::protobuf::lazy::Lazy<GetGCInfoResponse> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const GetGCSafepointResponse,
+            ptr: 0 as *const GetGCInfoResponse,
         };
         unsafe {
-            instance.get(GetGCSafepointResponse::new)
+            instance.get(GetGCInfoResponse::new)
         }
     }
 
@@ -11654,9 +11655,32 @@ impl GetGCSafepointResponse {
     fn mut_safepoint_for_reflect(&mut self) -> &mut u64 {
         &mut self.safepoint
     }
+
+    // uint64 duration = 3;
+
+    pub fn clear_duration(&mut self) {
+        self.duration = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_duration(&mut self, v: u64) {
+        self.duration = v;
+    }
+
+    pub fn get_duration(&self) -> u64 {
+        self.duration
+    }
+
+    fn get_duration_for_reflect(&self) -> &u64 {
+        &self.duration
+    }
+
+    fn mut_duration_for_reflect(&mut self) -> &mut u64 {
+        &mut self.duration
+    }
 }
 
-impl ::protobuf::Message for GetGCSafepointResponse {
+impl ::protobuf::Message for GetGCInfoResponse {
     fn is_initialized(&self) -> bool {
         for v in &self.header {
             if !v.is_initialized() {
@@ -11680,6 +11704,13 @@ impl ::protobuf::Message for GetGCSafepointResponse {
                     let tmp = is.read_uint64()?;
                     self.safepoint = tmp;
                 },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint64()?;
+                    self.duration = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -11699,6 +11730,9 @@ impl ::protobuf::Message for GetGCSafepointResponse {
         if self.safepoint != 0 {
             my_size += ::protobuf::rt::value_size(2, self.safepoint, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.duration != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.duration, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -11712,6 +11746,9 @@ impl ::protobuf::Message for GetGCSafepointResponse {
         }
         if self.safepoint != 0 {
             os.write_uint64(2, self.safepoint)?;
+        }
+        if self.duration != 0 {
+            os.write_uint64(3, self.duration)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -11744,12 +11781,12 @@ impl ::protobuf::Message for GetGCSafepointResponse {
     }
 }
 
-impl ::protobuf::MessageStatic for GetGCSafepointResponse {
-    fn new() -> GetGCSafepointResponse {
-        GetGCSafepointResponse::new()
+impl ::protobuf::MessageStatic for GetGCInfoResponse {
+    fn new() -> GetGCInfoResponse {
+        GetGCInfoResponse::new()
     }
 
-    fn descriptor_static(_: ::std::option::Option<GetGCSafepointResponse>) -> &'static ::protobuf::reflect::MessageDescriptor {
+    fn descriptor_static(_: ::std::option::Option<GetGCInfoResponse>) -> &'static ::protobuf::reflect::MessageDescriptor {
         static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
             ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
@@ -11759,16 +11796,21 @@ impl ::protobuf::MessageStatic for GetGCSafepointResponse {
                 let mut fields = ::std::vec::Vec::new();
                 fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ResponseHeader>>(
                     "header",
-                    GetGCSafepointResponse::get_header_for_reflect,
-                    GetGCSafepointResponse::mut_header_for_reflect,
+                    GetGCInfoResponse::get_header_for_reflect,
+                    GetGCInfoResponse::mut_header_for_reflect,
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
                     "safepoint",
-                    GetGCSafepointResponse::get_safepoint_for_reflect,
-                    GetGCSafepointResponse::mut_safepoint_for_reflect,
+                    GetGCInfoResponse::get_safepoint_for_reflect,
+                    GetGCInfoResponse::mut_safepoint_for_reflect,
                 ));
-                ::protobuf::reflect::MessageDescriptor::new::<GetGCSafepointResponse>(
-                    "GetGCSafepointResponse",
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
+                    "duration",
+                    GetGCInfoResponse::get_duration_for_reflect,
+                    GetGCInfoResponse::mut_duration_for_reflect,
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<GetGCInfoResponse>(
+                    "GetGCInfoResponse",
                     fields,
                     file_descriptor_proto()
                 )
@@ -11777,51 +11819,53 @@ impl ::protobuf::MessageStatic for GetGCSafepointResponse {
     }
 }
 
-impl ::protobuf::Clear for GetGCSafepointResponse {
+impl ::protobuf::Clear for GetGCInfoResponse {
     fn clear(&mut self) {
         self.clear_header();
         self.clear_safepoint();
+        self.clear_duration();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for GetGCSafepointResponse {
+impl ::std::fmt::Debug for GetGCInfoResponse {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for GetGCSafepointResponse {
+impl ::protobuf::reflect::ProtobufValue for GetGCInfoResponse {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct PutGCSafepointRequest {
+pub struct PutGCInfoRequest {
     // message fields
     pub header: ::protobuf::SingularPtrField<RequestHeader>,
     pub safepoint: u64,
+    pub duration: u64,
     // special fields
     unknown_fields: ::protobuf::UnknownFields,
     cached_size: ::protobuf::CachedSize,
 }
 
 // see codegen.rs for the explanation why impl Sync explicitly
-unsafe impl ::std::marker::Sync for PutGCSafepointRequest {}
+unsafe impl ::std::marker::Sync for PutGCInfoRequest {}
 
-impl PutGCSafepointRequest {
-    pub fn new() -> PutGCSafepointRequest {
+impl PutGCInfoRequest {
+    pub fn new() -> PutGCInfoRequest {
         ::std::default::Default::default()
     }
 
-    pub fn default_instance() -> &'static PutGCSafepointRequest {
-        static mut instance: ::protobuf::lazy::Lazy<PutGCSafepointRequest> = ::protobuf::lazy::Lazy {
+    pub fn default_instance() -> &'static PutGCInfoRequest {
+        static mut instance: ::protobuf::lazy::Lazy<PutGCInfoRequest> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const PutGCSafepointRequest,
+            ptr: 0 as *const PutGCInfoRequest,
         };
         unsafe {
-            instance.get(PutGCSafepointRequest::new)
+            instance.get(PutGCInfoRequest::new)
         }
     }
 
@@ -11888,9 +11932,32 @@ impl PutGCSafepointRequest {
     fn mut_safepoint_for_reflect(&mut self) -> &mut u64 {
         &mut self.safepoint
     }
+
+    // uint64 duration = 3;
+
+    pub fn clear_duration(&mut self) {
+        self.duration = 0;
+    }
+
+    // Param is passed by value, moved
+    pub fn set_duration(&mut self, v: u64) {
+        self.duration = v;
+    }
+
+    pub fn get_duration(&self) -> u64 {
+        self.duration
+    }
+
+    fn get_duration_for_reflect(&self) -> &u64 {
+        &self.duration
+    }
+
+    fn mut_duration_for_reflect(&mut self) -> &mut u64 {
+        &mut self.duration
+    }
 }
 
-impl ::protobuf::Message for PutGCSafepointRequest {
+impl ::protobuf::Message for PutGCInfoRequest {
     fn is_initialized(&self) -> bool {
         for v in &self.header {
             if !v.is_initialized() {
@@ -11914,6 +11981,13 @@ impl ::protobuf::Message for PutGCSafepointRequest {
                     let tmp = is.read_uint64()?;
                     self.safepoint = tmp;
                 },
+                3 => {
+                    if wire_type != ::protobuf::wire_format::WireTypeVarint {
+                        return ::std::result::Result::Err(::protobuf::rt::unexpected_wire_type(wire_type));
+                    }
+                    let tmp = is.read_uint64()?;
+                    self.duration = tmp;
+                },
                 _ => {
                     ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
                 },
@@ -11933,6 +12007,9 @@ impl ::protobuf::Message for PutGCSafepointRequest {
         if self.safepoint != 0 {
             my_size += ::protobuf::rt::value_size(2, self.safepoint, ::protobuf::wire_format::WireTypeVarint);
         }
+        if self.duration != 0 {
+            my_size += ::protobuf::rt::value_size(3, self.duration, ::protobuf::wire_format::WireTypeVarint);
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
         self.cached_size.set(my_size);
         my_size
@@ -11946,6 +12023,9 @@ impl ::protobuf::Message for PutGCSafepointRequest {
         }
         if self.safepoint != 0 {
             os.write_uint64(2, self.safepoint)?;
+        }
+        if self.duration != 0 {
+            os.write_uint64(3, self.duration)?;
         }
         os.write_unknown_fields(self.get_unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -11978,12 +12058,12 @@ impl ::protobuf::Message for PutGCSafepointRequest {
     }
 }
 
-impl ::protobuf::MessageStatic for PutGCSafepointRequest {
-    fn new() -> PutGCSafepointRequest {
-        PutGCSafepointRequest::new()
+impl ::protobuf::MessageStatic for PutGCInfoRequest {
+    fn new() -> PutGCInfoRequest {
+        PutGCInfoRequest::new()
     }
 
-    fn descriptor_static(_: ::std::option::Option<PutGCSafepointRequest>) -> &'static ::protobuf::reflect::MessageDescriptor {
+    fn descriptor_static(_: ::std::option::Option<PutGCInfoRequest>) -> &'static ::protobuf::reflect::MessageDescriptor {
         static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
             ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
@@ -11993,16 +12073,21 @@ impl ::protobuf::MessageStatic for PutGCSafepointRequest {
                 let mut fields = ::std::vec::Vec::new();
                 fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<RequestHeader>>(
                     "header",
-                    PutGCSafepointRequest::get_header_for_reflect,
-                    PutGCSafepointRequest::mut_header_for_reflect,
+                    PutGCInfoRequest::get_header_for_reflect,
+                    PutGCInfoRequest::mut_header_for_reflect,
                 ));
                 fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
                     "safepoint",
-                    PutGCSafepointRequest::get_safepoint_for_reflect,
-                    PutGCSafepointRequest::mut_safepoint_for_reflect,
+                    PutGCInfoRequest::get_safepoint_for_reflect,
+                    PutGCInfoRequest::mut_safepoint_for_reflect,
                 ));
-                ::protobuf::reflect::MessageDescriptor::new::<PutGCSafepointRequest>(
-                    "PutGCSafepointRequest",
+                fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeUint64>(
+                    "duration",
+                    PutGCInfoRequest::get_duration_for_reflect,
+                    PutGCInfoRequest::mut_duration_for_reflect,
+                ));
+                ::protobuf::reflect::MessageDescriptor::new::<PutGCInfoRequest>(
+                    "PutGCInfoRequest",
                     fields,
                     file_descriptor_proto()
                 )
@@ -12011,28 +12096,29 @@ impl ::protobuf::MessageStatic for PutGCSafepointRequest {
     }
 }
 
-impl ::protobuf::Clear for PutGCSafepointRequest {
+impl ::protobuf::Clear for PutGCInfoRequest {
     fn clear(&mut self) {
         self.clear_header();
         self.clear_safepoint();
+        self.clear_duration();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for PutGCSafepointRequest {
+impl ::std::fmt::Debug for PutGCInfoRequest {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for PutGCSafepointRequest {
+impl ::protobuf::reflect::ProtobufValue for PutGCInfoRequest {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct PutGCSafepointResponse {
+pub struct PutGCInfoResponse {
     // message fields
     pub header: ::protobuf::SingularPtrField<ResponseHeader>,
     // special fields
@@ -12041,20 +12127,20 @@ pub struct PutGCSafepointResponse {
 }
 
 // see codegen.rs for the explanation why impl Sync explicitly
-unsafe impl ::std::marker::Sync for PutGCSafepointResponse {}
+unsafe impl ::std::marker::Sync for PutGCInfoResponse {}
 
-impl PutGCSafepointResponse {
-    pub fn new() -> PutGCSafepointResponse {
+impl PutGCInfoResponse {
+    pub fn new() -> PutGCInfoResponse {
         ::std::default::Default::default()
     }
 
-    pub fn default_instance() -> &'static PutGCSafepointResponse {
-        static mut instance: ::protobuf::lazy::Lazy<PutGCSafepointResponse> = ::protobuf::lazy::Lazy {
+    pub fn default_instance() -> &'static PutGCInfoResponse {
+        static mut instance: ::protobuf::lazy::Lazy<PutGCInfoResponse> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
-            ptr: 0 as *const PutGCSafepointResponse,
+            ptr: 0 as *const PutGCInfoResponse,
         };
         unsafe {
-            instance.get(PutGCSafepointResponse::new)
+            instance.get(PutGCInfoResponse::new)
         }
     }
 
@@ -12100,7 +12186,7 @@ impl PutGCSafepointResponse {
     }
 }
 
-impl ::protobuf::Message for PutGCSafepointResponse {
+impl ::protobuf::Message for PutGCInfoResponse {
     fn is_initialized(&self) -> bool {
         for v in &self.header {
             if !v.is_initialized() {
@@ -12175,12 +12261,12 @@ impl ::protobuf::Message for PutGCSafepointResponse {
     }
 }
 
-impl ::protobuf::MessageStatic for PutGCSafepointResponse {
-    fn new() -> PutGCSafepointResponse {
-        PutGCSafepointResponse::new()
+impl ::protobuf::MessageStatic for PutGCInfoResponse {
+    fn new() -> PutGCInfoResponse {
+        PutGCInfoResponse::new()
     }
 
-    fn descriptor_static(_: ::std::option::Option<PutGCSafepointResponse>) -> &'static ::protobuf::reflect::MessageDescriptor {
+    fn descriptor_static(_: ::std::option::Option<PutGCInfoResponse>) -> &'static ::protobuf::reflect::MessageDescriptor {
         static mut descriptor: ::protobuf::lazy::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::lazy::Lazy {
             lock: ::protobuf::lazy::ONCE_INIT,
             ptr: 0 as *const ::protobuf::reflect::MessageDescriptor,
@@ -12190,11 +12276,11 @@ impl ::protobuf::MessageStatic for PutGCSafepointResponse {
                 let mut fields = ::std::vec::Vec::new();
                 fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<ResponseHeader>>(
                     "header",
-                    PutGCSafepointResponse::get_header_for_reflect,
-                    PutGCSafepointResponse::mut_header_for_reflect,
+                    PutGCInfoResponse::get_header_for_reflect,
+                    PutGCInfoResponse::mut_header_for_reflect,
                 ));
-                ::protobuf::reflect::MessageDescriptor::new::<PutGCSafepointResponse>(
-                    "PutGCSafepointResponse",
+                ::protobuf::reflect::MessageDescriptor::new::<PutGCInfoResponse>(
+                    "PutGCInfoResponse",
                     fields,
                     file_descriptor_proto()
                 )
@@ -12203,20 +12289,20 @@ impl ::protobuf::MessageStatic for PutGCSafepointResponse {
     }
 }
 
-impl ::protobuf::Clear for PutGCSafepointResponse {
+impl ::protobuf::Clear for PutGCInfoResponse {
     fn clear(&mut self) {
         self.clear_header();
         self.unknown_fields.clear();
     }
 }
 
-impl ::std::fmt::Debug for PutGCSafepointResponse {
+impl ::std::fmt::Debug for PutGCInfoResponse {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         ::protobuf::text_format::fmt(self, f)
     }
 }
 
-impl ::protobuf::reflect::ProtobufValue for PutGCSafepointResponse {
+impl ::protobuf::reflect::ProtobufValue for PutGCInfoResponse {
     fn as_ref(&self) -> ::protobuf::reflect::ProtobufValueRef {
         ::protobuf::reflect::ProtobufValueRef::Message(self)
     }
@@ -12403,96 +12489,97 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x02\x20\x01(\x04R\x08regionId\x12&\n\x06region\x18\x03\x20\x01(\x0b2\
     \x0e.metapb.RegionR\x06region\x12$\n\x06leader\x18\x04\x20\x01(\x0b2\x0c\
     .metapb.PeerR\x06leader\"E\n\x15ScatterRegionResponse\x12,\n\x06header\
-    \x18\x01\x20\x01(\x0b2\x14.pdpb.ResponseHeaderR\x06header\"D\n\x15GetGCS\
-    afepointRequest\x12+\n\x06header\x18\x01\x20\x01(\x0b2\x13.pdpb.RequestH\
-    eaderR\x06header\"d\n\x16GetGCSafepointResponse\x12,\n\x06header\x18\x01\
-    \x20\x01(\x0b2\x14.pdpb.ResponseHeaderR\x06header\x12\x1c\n\tsafepoint\
-    \x18\x02\x20\x01(\x04R\tsafepoint\"b\n\x15PutGCSafepointRequest\x12+\n\
-    \x06header\x18\x01\x20\x01(\x0b2\x13.pdpb.RequestHeaderR\x06header\x12\
-    \x1c\n\tsafepoint\x18\x02\x20\x01(\x04R\tsafepoint\"F\n\x16PutGCSafepoin\
-    tResponse\x12,\n\x06header\x18\x01\x20\x01(\x0b2\x14.pdpb.ResponseHeader\
-    R\x06header*e\n\tErrorType\x12\x06\n\x02OK\x10\0\x12\x0b\n\x07UNKNOWN\
-    \x10\x01\x12\x14\n\x10NOT_BOOTSTRAPPED\x10\x02\x12\x13\n\x0fSTORE_TOMBST\
-    ONE\x10\x03\x12\x18\n\x14ALREADY_BOOTSTRAPPED\x10\x042\xc9\n\n\x02PD\x12\
-    A\n\nGetMembers\x12\x17.pdpb.GetMembersRequest\x1a\x18.pdpb.GetMembersRe\
-    sponse\"\0\x120\n\x03Tso\x12\x10.pdpb.TsoRequest\x1a\x11.pdpb.TsoRespons\
-    e\"\0(\x010\x01\x12>\n\tBootstrap\x12\x16.pdpb.BootstrapRequest\x1a\x17.\
-    pdpb.BootstrapResponse\"\0\x12M\n\x0eIsBootstrapped\x12\x1b.pdpb.IsBoots\
-    trappedRequest\x1a\x1c.pdpb.IsBootstrappedResponse\"\0\x128\n\x07AllocID\
-    \x12\x14.pdpb.AllocIDRequest\x1a\x15.pdpb.AllocIDResponse\"\0\x12;\n\x08\
-    GetStore\x12\x15.pdpb.GetStoreRequest\x1a\x16.pdpb.GetStoreResponse\"\0\
-    \x12;\n\x08PutStore\x12\x15.pdpb.PutStoreRequest\x1a\x16.pdpb.PutStoreRe\
-    sponse\"\0\x12G\n\x0cGetAllStores\x12\x19.pdpb.GetAllStoresRequest\x1a\
-    \x1a.pdpb.GetAllStoresResponse\"\0\x12M\n\x0eStoreHeartbeat\x12\x1b.pdpb\
-    .StoreHeartbeatRequest\x1a\x1c.pdpb.StoreHeartbeatResponse\"\0\x12T\n\
-    \x0fRegionHeartbeat\x12\x1c.pdpb.RegionHeartbeatRequest\x1a\x1d.pdpb.Reg\
-    ionHeartbeatResponse\"\0(\x010\x01\x12>\n\tGetRegion\x12\x16.pdpb.GetReg\
-    ionRequest\x1a\x17.pdpb.GetRegionResponse\"\0\x12F\n\rGetRegionByID\x12\
-    \x1a.pdpb.GetRegionByIDRequest\x1a\x17.pdpb.GetRegionResponse\"\0\x12;\n\
-    \x08AskSplit\x12\x15.pdpb.AskSplitRequest\x1a\x16.pdpb.AskSplitResponse\
-    \"\0\x12D\n\x0bReportSplit\x12\x18.pdpb.ReportSplitRequest\x1a\x19.pdpb.\
-    ReportSplitResponse\"\0\x12S\n\x10GetClusterConfig\x12\x1d.pdpb.GetClust\
-    erConfigRequest\x1a\x1e.pdpb.GetClusterConfigResponse\"\0\x12S\n\x10PutC\
-    lusterConfig\x12\x1d.pdpb.PutClusterConfigRequest\x1a\x1e.pdpb.PutCluste\
-    rConfigResponse\"\0\x12J\n\rScatterRegion\x12\x1a.pdpb.ScatterRegionRequ\
-    est\x1a\x1b.pdpb.ScatterRegionResponse\"\0\x12M\n\x0eGetGCSafepoint\x12\
-    \x1b.pdpb.GetGCSafepointRequest\x1a\x1c.pdpb.GetGCSafepointResponse\"\0\
-    \x12M\n\x0ePutGCSafepoint\x12\x1b.pdpb.PutGCSafepointRequest\x1a\x1c.pdp\
-    b.PutGCSafepointResponse\"\0B&\n\x18com.pingcap.tikv.kvproto\xe0\xe2\x1e\
-    \x01\xd0\xe2\x1e\x01\xc8\xe2\x1e\x01J\xafm\n\x07\x12\x05\0\0\x85\x03\x01\
-    \n\x08\n\x01\x0c\x12\x03\0\0\x12\n\x08\n\x01\x02\x12\x03\x01\x08\x0c\n\t\
-    \n\x02\x03\0\x12\x03\x03\x07\x15\n\t\n\x02\x03\x01\x12\x03\x04\x07\x16\n\
-    \t\n\x02\x03\x02\x12\x03\x06\x07\x1d\n\x08\n\x01\x08\x12\x03\x08\0$\n\
-    \x0b\n\x04\x08\xe7\x07\0\x12\x03\x08\0$\n\x0c\n\x05\x08\xe7\x07\0\x02\
-    \x12\x03\x08\x07\x1c\n\r\n\x06\x08\xe7\x07\0\x02\0\x12\x03\x08\x07\x1c\n\
-    \x0e\n\x07\x08\xe7\x07\0\x02\0\x01\x12\x03\x08\x08\x1b\n\x0c\n\x05\x08\
-    \xe7\x07\0\x03\x12\x03\x08\x1f#\n\x08\n\x01\x08\x12\x03\t\0(\n\x0b\n\x04\
-    \x08\xe7\x07\x01\x12\x03\t\0(\n\x0c\n\x05\x08\xe7\x07\x01\x02\x12\x03\t\
-    \x07\x20\n\r\n\x06\x08\xe7\x07\x01\x02\0\x12\x03\t\x07\x20\n\x0e\n\x07\
-    \x08\xe7\x07\x01\x02\0\x01\x12\x03\t\x08\x1f\n\x0c\n\x05\x08\xe7\x07\x01\
-    \x03\x12\x03\t#'\n\x08\n\x01\x08\x12\x03\n\0*\n\x0b\n\x04\x08\xe7\x07\
-    \x02\x12\x03\n\0*\n\x0c\n\x05\x08\xe7\x07\x02\x02\x12\x03\n\x07\"\n\r\n\
-    \x06\x08\xe7\x07\x02\x02\0\x12\x03\n\x07\"\n\x0e\n\x07\x08\xe7\x07\x02\
-    \x02\0\x01\x12\x03\n\x08!\n\x0c\n\x05\x08\xe7\x07\x02\x03\x12\x03\n%)\n\
-    \x08\n\x01\x08\x12\x03\x0c\01\n\x0b\n\x04\x08\xe7\x07\x03\x12\x03\x0c\01\
-    \n\x0c\n\x05\x08\xe7\x07\x03\x02\x12\x03\x0c\x07\x13\n\r\n\x06\x08\xe7\
-    \x07\x03\x02\0\x12\x03\x0c\x07\x13\n\x0e\n\x07\x08\xe7\x07\x03\x02\0\x01\
-    \x12\x03\x0c\x07\x13\n\x0c\n\x05\x08\xe7\x07\x03\x07\x12\x03\x0c\x160\n\
-    \n\n\x02\x06\0\x12\x04\x0e\06\x01\n\n\n\x03\x06\0\x01\x12\x03\x0e\x08\n\
-    \n\x8c\x01\n\x04\x06\0\x02\0\x12\x03\x11\x04E\x1a\x7f\x20GetMembers\x20g\
-    et\x20the\x20member\x20list\x20of\x20this\x20cluster.\x20It\x20does\x20n\
-    ot\x20require\n\x20the\x20cluster_id\x20in\x20request\x20matchs\x20the\
-    \x20id\x20of\x20this\x20cluster.\n\n\x0c\n\x05\x06\0\x02\0\x01\x12\x03\
-    \x11\x08\x12\n\x0c\n\x05\x06\0\x02\0\x02\x12\x03\x11\x13$\n\x0c\n\x05\
-    \x06\0\x02\0\x03\x12\x03\x11/A\n\x0b\n\x04\x06\0\x02\x01\x12\x03\x13\x04\
-    >\n\x0c\n\x05\x06\0\x02\x01\x01\x12\x03\x13\x08\x0b\n\x0c\n\x05\x06\0\
-    \x02\x01\x05\x12\x03\x13\x0c\x12\n\x0c\n\x05\x06\0\x02\x01\x02\x12\x03\
-    \x13\x13\x1d\n\x0c\n\x05\x06\0\x02\x01\x06\x12\x03\x13(.\n\x0c\n\x05\x06\
-    \0\x02\x01\x03\x12\x03\x13/:\n\x0b\n\x04\x06\0\x02\x02\x12\x03\x15\x04B\
-    \n\x0c\n\x05\x06\0\x02\x02\x01\x12\x03\x15\x08\x11\n\x0c\n\x05\x06\0\x02\
-    \x02\x02\x12\x03\x15\x12\"\n\x0c\n\x05\x06\0\x02\x02\x03\x12\x03\x15->\n\
-    \x0b\n\x04\x06\0\x02\x03\x12\x03\x17\x04Q\n\x0c\n\x05\x06\0\x02\x03\x01\
-    \x12\x03\x17\x08\x16\n\x0c\n\x05\x06\0\x02\x03\x02\x12\x03\x17\x17,\n\
-    \x0c\n\x05\x06\0\x02\x03\x03\x12\x03\x177M\n\x0b\n\x04\x06\0\x02\x04\x12\
-    \x03\x19\x04<\n\x0c\n\x05\x06\0\x02\x04\x01\x12\x03\x19\x08\x0f\n\x0c\n\
-    \x05\x06\0\x02\x04\x02\x12\x03\x19\x10\x1e\n\x0c\n\x05\x06\0\x02\x04\x03\
-    \x12\x03\x19)8\n\x0b\n\x04\x06\0\x02\x05\x12\x03\x1b\x04?\n\x0c\n\x05\
-    \x06\0\x02\x05\x01\x12\x03\x1b\x08\x10\n\x0c\n\x05\x06\0\x02\x05\x02\x12\
-    \x03\x1b\x11\x20\n\x0c\n\x05\x06\0\x02\x05\x03\x12\x03\x1b+;\n\x0b\n\x04\
-    \x06\0\x02\x06\x12\x03\x1d\x04?\n\x0c\n\x05\x06\0\x02\x06\x01\x12\x03\
-    \x1d\x08\x10\n\x0c\n\x05\x06\0\x02\x06\x02\x12\x03\x1d\x11\x20\n\x0c\n\
-    \x05\x06\0\x02\x06\x03\x12\x03\x1d+;\n\x0b\n\x04\x06\0\x02\x07\x12\x03\
-    \x1f\x04K\n\x0c\n\x05\x06\0\x02\x07\x01\x12\x03\x1f\x08\x14\n\x0c\n\x05\
-    \x06\0\x02\x07\x02\x12\x03\x1f\x15(\n\x0c\n\x05\x06\0\x02\x07\x03\x12\
-    \x03\x1f3G\n\x0b\n\x04\x06\0\x02\x08\x12\x03!\x04Q\n\x0c\n\x05\x06\0\x02\
-    \x08\x01\x12\x03!\x08\x16\n\x0c\n\x05\x06\0\x02\x08\x02\x12\x03!\x17,\n\
-    \x0c\n\x05\x06\0\x02\x08\x03\x12\x03!7M\n\x0b\n\x04\x06\0\x02\t\x12\x03#\
-    \x04b\n\x0c\n\x05\x06\0\x02\t\x01\x12\x03#\x08\x17\n\x0c\n\x05\x06\0\x02\
-    \t\x05\x12\x03#\x18\x1e\n\x0c\n\x05\x06\0\x02\t\x02\x12\x03#\x1f5\n\x0c\
-    \n\x05\x06\0\x02\t\x06\x12\x03#@F\n\x0c\n\x05\x06\0\x02\t\x03\x12\x03#G^\
-    \n\x0b\n\x04\x06\0\x02\n\x12\x03%\x04B\n\x0c\n\x05\x06\0\x02\n\x01\x12\
-    \x03%\x08\x11\n\x0c\n\x05\x06\0\x02\n\x02\x12\x03%\x12\"\n\x0c\n\x05\x06\
-    \0\x02\n\x03\x12\x03%->\n\x0b\n\x04\x06\0\x02\x0b\x12\x03'\x04J\n\x0c\n\
+    \x18\x01\x20\x01(\x0b2\x14.pdpb.ResponseHeaderR\x06header\"?\n\x10GetGCI\
+    nfoRequest\x12+\n\x06header\x18\x01\x20\x01(\x0b2\x13.pdpb.RequestHeader\
+    R\x06header\"{\n\x11GetGCInfoResponse\x12,\n\x06header\x18\x01\x20\x01(\
+    \x0b2\x14.pdpb.ResponseHeaderR\x06header\x12\x1c\n\tsafepoint\x18\x02\
+    \x20\x01(\x04R\tsafepoint\x12\x1a\n\x08duration\x18\x03\x20\x01(\x04R\
+    \x08duration\"y\n\x10PutGCInfoRequest\x12+\n\x06header\x18\x01\x20\x01(\
+    \x0b2\x13.pdpb.RequestHeaderR\x06header\x12\x1c\n\tsafepoint\x18\x02\x20\
+    \x01(\x04R\tsafepoint\x12\x1a\n\x08duration\x18\x03\x20\x01(\x04R\x08dur\
+    ation\"A\n\x11PutGCInfoResponse\x12,\n\x06header\x18\x01\x20\x01(\x0b2\
+    \x14.pdpb.ResponseHeaderR\x06header*e\n\tErrorType\x12\x06\n\x02OK\x10\0\
+    \x12\x0b\n\x07UNKNOWN\x10\x01\x12\x14\n\x10NOT_BOOTSTRAPPED\x10\x02\x12\
+    \x13\n\x0fSTORE_TOMBSTONE\x10\x03\x12\x18\n\x14ALREADY_BOOTSTRAPPED\x10\
+    \x042\xab\n\n\x02PD\x12A\n\nGetMembers\x12\x17.pdpb.GetMembersRequest\
+    \x1a\x18.pdpb.GetMembersResponse\"\0\x120\n\x03Tso\x12\x10.pdpb.TsoReque\
+    st\x1a\x11.pdpb.TsoResponse\"\0(\x010\x01\x12>\n\tBootstrap\x12\x16.pdpb\
+    .BootstrapRequest\x1a\x17.pdpb.BootstrapResponse\"\0\x12M\n\x0eIsBootstr\
+    apped\x12\x1b.pdpb.IsBootstrappedRequest\x1a\x1c.pdpb.IsBootstrappedResp\
+    onse\"\0\x128\n\x07AllocID\x12\x14.pdpb.AllocIDRequest\x1a\x15.pdpb.Allo\
+    cIDResponse\"\0\x12;\n\x08GetStore\x12\x15.pdpb.GetStoreRequest\x1a\x16.\
+    pdpb.GetStoreResponse\"\0\x12;\n\x08PutStore\x12\x15.pdpb.PutStoreReques\
+    t\x1a\x16.pdpb.PutStoreResponse\"\0\x12G\n\x0cGetAllStores\x12\x19.pdpb.\
+    GetAllStoresRequest\x1a\x1a.pdpb.GetAllStoresResponse\"\0\x12M\n\x0eStor\
+    eHeartbeat\x12\x1b.pdpb.StoreHeartbeatRequest\x1a\x1c.pdpb.StoreHeartbea\
+    tResponse\"\0\x12T\n\x0fRegionHeartbeat\x12\x1c.pdpb.RegionHeartbeatRequ\
+    est\x1a\x1d.pdpb.RegionHeartbeatResponse\"\0(\x010\x01\x12>\n\tGetRegion\
+    \x12\x16.pdpb.GetRegionRequest\x1a\x17.pdpb.GetRegionResponse\"\0\x12F\n\
+    \rGetRegionByID\x12\x1a.pdpb.GetRegionByIDRequest\x1a\x17.pdpb.GetRegion\
+    Response\"\0\x12;\n\x08AskSplit\x12\x15.pdpb.AskSplitRequest\x1a\x16.pdp\
+    b.AskSplitResponse\"\0\x12D\n\x0bReportSplit\x12\x18.pdpb.ReportSplitReq\
+    uest\x1a\x19.pdpb.ReportSplitResponse\"\0\x12S\n\x10GetClusterConfig\x12\
+    \x1d.pdpb.GetClusterConfigRequest\x1a\x1e.pdpb.GetClusterConfigResponse\
+    \"\0\x12S\n\x10PutClusterConfig\x12\x1d.pdpb.PutClusterConfigRequest\x1a\
+    \x1e.pdpb.PutClusterConfigResponse\"\0\x12J\n\rScatterRegion\x12\x1a.pdp\
+    b.ScatterRegionRequest\x1a\x1b.pdpb.ScatterRegionResponse\"\0\x12>\n\tGe\
+    tGCInfo\x12\x16.pdpb.GetGCInfoRequest\x1a\x17.pdpb.GetGCInfoResponse\"\0\
+    \x12>\n\tPutGCInfo\x12\x16.pdpb.PutGCInfoRequest\x1a\x17.pdpb.PutGCInfoR\
+    esponse\"\0B&\n\x18com.pingcap.tikv.kvproto\xd0\xe2\x1e\x01\xc8\xe2\x1e\
+    \x01\xe0\xe2\x1e\x01J\xc7n\n\x07\x12\x05\0\0\x87\x03\x01\n\x08\n\x01\x0c\
+    \x12\x03\0\0\x12\n\x08\n\x01\x02\x12\x03\x01\x08\x0c\n\t\n\x02\x03\0\x12\
+    \x03\x03\x07\x15\n\t\n\x02\x03\x01\x12\x03\x04\x07\x16\n\t\n\x02\x03\x02\
+    \x12\x03\x06\x07\x1d\n\x08\n\x01\x08\x12\x03\x08\0$\n\x0b\n\x04\x08\xe7\
+    \x07\0\x12\x03\x08\0$\n\x0c\n\x05\x08\xe7\x07\0\x02\x12\x03\x08\x07\x1c\
+    \n\r\n\x06\x08\xe7\x07\0\x02\0\x12\x03\x08\x07\x1c\n\x0e\n\x07\x08\xe7\
+    \x07\0\x02\0\x01\x12\x03\x08\x08\x1b\n\x0c\n\x05\x08\xe7\x07\0\x03\x12\
+    \x03\x08\x1f#\n\x08\n\x01\x08\x12\x03\t\0(\n\x0b\n\x04\x08\xe7\x07\x01\
+    \x12\x03\t\0(\n\x0c\n\x05\x08\xe7\x07\x01\x02\x12\x03\t\x07\x20\n\r\n\
+    \x06\x08\xe7\x07\x01\x02\0\x12\x03\t\x07\x20\n\x0e\n\x07\x08\xe7\x07\x01\
+    \x02\0\x01\x12\x03\t\x08\x1f\n\x0c\n\x05\x08\xe7\x07\x01\x03\x12\x03\t#'\
+    \n\x08\n\x01\x08\x12\x03\n\0*\n\x0b\n\x04\x08\xe7\x07\x02\x12\x03\n\0*\n\
+    \x0c\n\x05\x08\xe7\x07\x02\x02\x12\x03\n\x07\"\n\r\n\x06\x08\xe7\x07\x02\
+    \x02\0\x12\x03\n\x07\"\n\x0e\n\x07\x08\xe7\x07\x02\x02\0\x01\x12\x03\n\
+    \x08!\n\x0c\n\x05\x08\xe7\x07\x02\x03\x12\x03\n%)\n\x08\n\x01\x08\x12\
+    \x03\x0c\01\n\x0b\n\x04\x08\xe7\x07\x03\x12\x03\x0c\01\n\x0c\n\x05\x08\
+    \xe7\x07\x03\x02\x12\x03\x0c\x07\x13\n\r\n\x06\x08\xe7\x07\x03\x02\0\x12\
+    \x03\x0c\x07\x13\n\x0e\n\x07\x08\xe7\x07\x03\x02\0\x01\x12\x03\x0c\x07\
+    \x13\n\x0c\n\x05\x08\xe7\x07\x03\x07\x12\x03\x0c\x160\n\n\n\x02\x06\0\
+    \x12\x04\x0e\06\x01\n\n\n\x03\x06\0\x01\x12\x03\x0e\x08\n\n\x8c\x01\n\
+    \x04\x06\0\x02\0\x12\x03\x11\x04E\x1a\x7f\x20GetMembers\x20get\x20the\
+    \x20member\x20list\x20of\x20this\x20cluster.\x20It\x20does\x20not\x20req\
+    uire\n\x20the\x20cluster_id\x20in\x20request\x20matchs\x20the\x20id\x20o\
+    f\x20this\x20cluster.\n\n\x0c\n\x05\x06\0\x02\0\x01\x12\x03\x11\x08\x12\
+    \n\x0c\n\x05\x06\0\x02\0\x02\x12\x03\x11\x13$\n\x0c\n\x05\x06\0\x02\0\
+    \x03\x12\x03\x11/A\n\x0b\n\x04\x06\0\x02\x01\x12\x03\x13\x04>\n\x0c\n\
+    \x05\x06\0\x02\x01\x01\x12\x03\x13\x08\x0b\n\x0c\n\x05\x06\0\x02\x01\x05\
+    \x12\x03\x13\x0c\x12\n\x0c\n\x05\x06\0\x02\x01\x02\x12\x03\x13\x13\x1d\n\
+    \x0c\n\x05\x06\0\x02\x01\x06\x12\x03\x13(.\n\x0c\n\x05\x06\0\x02\x01\x03\
+    \x12\x03\x13/:\n\x0b\n\x04\x06\0\x02\x02\x12\x03\x15\x04B\n\x0c\n\x05\
+    \x06\0\x02\x02\x01\x12\x03\x15\x08\x11\n\x0c\n\x05\x06\0\x02\x02\x02\x12\
+    \x03\x15\x12\"\n\x0c\n\x05\x06\0\x02\x02\x03\x12\x03\x15->\n\x0b\n\x04\
+    \x06\0\x02\x03\x12\x03\x17\x04Q\n\x0c\n\x05\x06\0\x02\x03\x01\x12\x03\
+    \x17\x08\x16\n\x0c\n\x05\x06\0\x02\x03\x02\x12\x03\x17\x17,\n\x0c\n\x05\
+    \x06\0\x02\x03\x03\x12\x03\x177M\n\x0b\n\x04\x06\0\x02\x04\x12\x03\x19\
+    \x04<\n\x0c\n\x05\x06\0\x02\x04\x01\x12\x03\x19\x08\x0f\n\x0c\n\x05\x06\
+    \0\x02\x04\x02\x12\x03\x19\x10\x1e\n\x0c\n\x05\x06\0\x02\x04\x03\x12\x03\
+    \x19)8\n\x0b\n\x04\x06\0\x02\x05\x12\x03\x1b\x04?\n\x0c\n\x05\x06\0\x02\
+    \x05\x01\x12\x03\x1b\x08\x10\n\x0c\n\x05\x06\0\x02\x05\x02\x12\x03\x1b\
+    \x11\x20\n\x0c\n\x05\x06\0\x02\x05\x03\x12\x03\x1b+;\n\x0b\n\x04\x06\0\
+    \x02\x06\x12\x03\x1d\x04?\n\x0c\n\x05\x06\0\x02\x06\x01\x12\x03\x1d\x08\
+    \x10\n\x0c\n\x05\x06\0\x02\x06\x02\x12\x03\x1d\x11\x20\n\x0c\n\x05\x06\0\
+    \x02\x06\x03\x12\x03\x1d+;\n\x0b\n\x04\x06\0\x02\x07\x12\x03\x1f\x04K\n\
+    \x0c\n\x05\x06\0\x02\x07\x01\x12\x03\x1f\x08\x14\n\x0c\n\x05\x06\0\x02\
+    \x07\x02\x12\x03\x1f\x15(\n\x0c\n\x05\x06\0\x02\x07\x03\x12\x03\x1f3G\n\
+    \x0b\n\x04\x06\0\x02\x08\x12\x03!\x04Q\n\x0c\n\x05\x06\0\x02\x08\x01\x12\
+    \x03!\x08\x16\n\x0c\n\x05\x06\0\x02\x08\x02\x12\x03!\x17,\n\x0c\n\x05\
+    \x06\0\x02\x08\x03\x12\x03!7M\n\x0b\n\x04\x06\0\x02\t\x12\x03#\x04b\n\
+    \x0c\n\x05\x06\0\x02\t\x01\x12\x03#\x08\x17\n\x0c\n\x05\x06\0\x02\t\x05\
+    \x12\x03#\x18\x1e\n\x0c\n\x05\x06\0\x02\t\x02\x12\x03#\x1f5\n\x0c\n\x05\
+    \x06\0\x02\t\x06\x12\x03#@F\n\x0c\n\x05\x06\0\x02\t\x03\x12\x03#G^\n\x0b\
+    \n\x04\x06\0\x02\n\x12\x03%\x04B\n\x0c\n\x05\x06\0\x02\n\x01\x12\x03%\
+    \x08\x11\n\x0c\n\x05\x06\0\x02\n\x02\x12\x03%\x12\"\n\x0c\n\x05\x06\0\
+    \x02\n\x03\x12\x03%->\n\x0b\n\x04\x06\0\x02\x0b\x12\x03'\x04J\n\x0c\n\
     \x05\x06\0\x02\x0b\x01\x12\x03'\x08\x15\n\x0c\n\x05\x06\0\x02\x0b\x02\
     \x12\x03'\x16*\n\x0c\n\x05\x06\0\x02\x0b\x03\x12\x03'5F\n\x0b\n\x04\x06\
     \0\x02\x0c\x12\x03)\x04?\n\x0c\n\x05\x06\0\x02\x0c\x01\x12\x03)\x08\x10\
@@ -12507,11 +12594,11 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x0c\n\x05\x06\0\x02\x0f\x03\x12\x03/;S\n\x0b\n\x04\x06\0\x02\x10\x12\
     \x031\x04N\n\x0c\n\x05\x06\0\x02\x10\x01\x12\x031\x08\x15\n\x0c\n\x05\
     \x06\0\x02\x10\x02\x12\x031\x16*\n\x0c\n\x05\x06\0\x02\x10\x03\x12\x0315\
-    J\n\x0b\n\x04\x06\0\x02\x11\x12\x033\x04Q\n\x0c\n\x05\x06\0\x02\x11\x01\
-    \x12\x033\x08\x16\n\x0c\n\x05\x06\0\x02\x11\x02\x12\x033\x17,\n\x0c\n\
-    \x05\x06\0\x02\x11\x03\x12\x0337M\n\x0b\n\x04\x06\0\x02\x12\x12\x035\x04\
-    Q\n\x0c\n\x05\x06\0\x02\x12\x01\x12\x035\x08\x16\n\x0c\n\x05\x06\0\x02\
-    \x12\x02\x12\x035\x17,\n\x0c\n\x05\x06\0\x02\x12\x03\x12\x0357M\n\n\n\
+    J\n\x0b\n\x04\x06\0\x02\x11\x12\x033\x04B\n\x0c\n\x05\x06\0\x02\x11\x01\
+    \x12\x033\x08\x11\n\x0c\n\x05\x06\0\x02\x11\x02\x12\x033\x12\"\n\x0c\n\
+    \x05\x06\0\x02\x11\x03\x12\x033->\n\x0b\n\x04\x06\0\x02\x12\x12\x035\x04\
+    B\n\x0c\n\x05\x06\0\x02\x12\x01\x12\x035\x08\x11\n\x0c\n\x05\x06\0\x02\
+    \x12\x02\x12\x035\x12\"\n\x0c\n\x05\x06\0\x02\x12\x03\x12\x035->\n\n\n\
     \x02\x04\0\x12\x048\0;\x01\n\n\n\x03\x04\0\x01\x12\x038\x08\x15\nD\n\x04\
     \x04\0\x02\0\x12\x03:\x04\x1a\x1a7\x20cluster_id\x20is\x20the\x20ID\x20o\
     f\x20the\x20cluster\x20which\x20be\x20sent\x20to.\n\n\r\n\x05\x04\0\x02\
@@ -13021,33 +13108,41 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \0\x04\x12\x06\xf0\x02\x04\xef\x02\x1f\n\r\n\x05\x04)\x02\0\x06\x12\x04\
     \xf0\x02\x04\x12\n\r\n\x05\x04)\x02\0\x01\x12\x04\xf0\x02\x13\x19\n\r\n\
     \x05\x04)\x02\0\x03\x12\x04\xf0\x02\x1c\x1d\n\x0c\n\x02\x04*\x12\x06\xf3\
-    \x02\0\xf5\x02\x01\n\x0b\n\x03\x04*\x01\x12\x04\xf3\x02\x08\x1d\n\x0c\n\
+    \x02\0\xf5\x02\x01\n\x0b\n\x03\x04*\x01\x12\x04\xf3\x02\x08\x18\n\x0c\n\
     \x04\x04*\x02\0\x12\x04\xf4\x02\x04\x1d\n\x0f\n\x05\x04*\x02\0\x04\x12\
-    \x06\xf4\x02\x04\xf3\x02\x1f\n\r\n\x05\x04*\x02\0\x06\x12\x04\xf4\x02\
+    \x06\xf4\x02\x04\xf3\x02\x1a\n\r\n\x05\x04*\x02\0\x06\x12\x04\xf4\x02\
     \x04\x11\n\r\n\x05\x04*\x02\0\x01\x12\x04\xf4\x02\x12\x18\n\r\n\x05\x04*\
     \x02\0\x03\x12\x04\xf4\x02\x1b\x1c\n\x0c\n\x02\x04+\x12\x06\xf7\x02\0\
-    \xfb\x02\x01\n\x0b\n\x03\x04+\x01\x12\x04\xf7\x02\x08\x1e\n\x0c\n\x04\
+    \xfc\x02\x01\n\x0b\n\x03\x04+\x01\x12\x04\xf7\x02\x08\x19\n\x0c\n\x04\
     \x04+\x02\0\x12\x04\xf8\x02\x04\x1e\n\x0f\n\x05\x04+\x02\0\x04\x12\x06\
-    \xf8\x02\x04\xf7\x02\x20\n\r\n\x05\x04+\x02\0\x06\x12\x04\xf8\x02\x04\
+    \xf8\x02\x04\xf7\x02\x1b\n\r\n\x05\x04+\x02\0\x06\x12\x04\xf8\x02\x04\
     \x12\n\r\n\x05\x04+\x02\0\x01\x12\x04\xf8\x02\x13\x19\n\r\n\x05\x04+\x02\
     \0\x03\x12\x04\xf8\x02\x1c\x1d\n\x0c\n\x04\x04+\x02\x01\x12\x04\xfa\x02\
     \x04\x19\n\x0f\n\x05\x04+\x02\x01\x04\x12\x06\xfa\x02\x04\xf8\x02\x1e\n\
     \r\n\x05\x04+\x02\x01\x05\x12\x04\xfa\x02\x04\n\n\r\n\x05\x04+\x02\x01\
     \x01\x12\x04\xfa\x02\x0b\x14\n\r\n\x05\x04+\x02\x01\x03\x12\x04\xfa\x02\
-    \x17\x18\n\x0c\n\x02\x04,\x12\x06\xfd\x02\0\x81\x03\x01\n\x0b\n\x03\x04,\
-    \x01\x12\x04\xfd\x02\x08\x1d\n\x0c\n\x04\x04,\x02\0\x12\x04\xfe\x02\x04\
-    \x1d\n\x0f\n\x05\x04,\x02\0\x04\x12\x06\xfe\x02\x04\xfd\x02\x1f\n\r\n\
-    \x05\x04,\x02\0\x06\x12\x04\xfe\x02\x04\x11\n\r\n\x05\x04,\x02\0\x01\x12\
-    \x04\xfe\x02\x12\x18\n\r\n\x05\x04,\x02\0\x03\x12\x04\xfe\x02\x1b\x1c\n\
-    \x0c\n\x04\x04,\x02\x01\x12\x04\x80\x03\x04\x19\n\x0f\n\x05\x04,\x02\x01\
-    \x04\x12\x06\x80\x03\x04\xfe\x02\x1d\n\r\n\x05\x04,\x02\x01\x05\x12\x04\
-    \x80\x03\x04\n\n\r\n\x05\x04,\x02\x01\x01\x12\x04\x80\x03\x0b\x14\n\r\n\
-    \x05\x04,\x02\x01\x03\x12\x04\x80\x03\x17\x18\n\x0c\n\x02\x04-\x12\x06\
-    \x83\x03\0\x85\x03\x01\n\x0b\n\x03\x04-\x01\x12\x04\x83\x03\x08\x1e\n\
-    \x0c\n\x04\x04-\x02\0\x12\x04\x84\x03\x04\x1e\n\x0f\n\x05\x04-\x02\0\x04\
-    \x12\x06\x84\x03\x04\x83\x03\x20\n\r\n\x05\x04-\x02\0\x06\x12\x04\x84\
-    \x03\x04\x12\n\r\n\x05\x04-\x02\0\x01\x12\x04\x84\x03\x13\x19\n\r\n\x05\
-    \x04-\x02\0\x03\x12\x04\x84\x03\x1c\x1db\x06proto3\
+    \x17\x18\n\x0c\n\x04\x04+\x02\x02\x12\x04\xfb\x02\x04\x18\n\x0f\n\x05\
+    \x04+\x02\x02\x04\x12\x06\xfb\x02\x04\xfa\x02\x19\n\r\n\x05\x04+\x02\x02\
+    \x05\x12\x04\xfb\x02\x04\n\n\r\n\x05\x04+\x02\x02\x01\x12\x04\xfb\x02\
+    \x0b\x13\n\r\n\x05\x04+\x02\x02\x03\x12\x04\xfb\x02\x16\x17\n\x0c\n\x02\
+    \x04,\x12\x06\xfe\x02\0\x83\x03\x01\n\x0b\n\x03\x04,\x01\x12\x04\xfe\x02\
+    \x08\x18\n\x0c\n\x04\x04,\x02\0\x12\x04\xff\x02\x04\x1d\n\x0f\n\x05\x04,\
+    \x02\0\x04\x12\x06\xff\x02\x04\xfe\x02\x1a\n\r\n\x05\x04,\x02\0\x06\x12\
+    \x04\xff\x02\x04\x11\n\r\n\x05\x04,\x02\0\x01\x12\x04\xff\x02\x12\x18\n\
+    \r\n\x05\x04,\x02\0\x03\x12\x04\xff\x02\x1b\x1c\n\x0c\n\x04\x04,\x02\x01\
+    \x12\x04\x81\x03\x04\x19\n\x0f\n\x05\x04,\x02\x01\x04\x12\x06\x81\x03\
+    \x04\xff\x02\x1d\n\r\n\x05\x04,\x02\x01\x05\x12\x04\x81\x03\x04\n\n\r\n\
+    \x05\x04,\x02\x01\x01\x12\x04\x81\x03\x0b\x14\n\r\n\x05\x04,\x02\x01\x03\
+    \x12\x04\x81\x03\x17\x18\n\x0c\n\x04\x04,\x02\x02\x12\x04\x82\x03\x04\
+    \x18\n\x0f\n\x05\x04,\x02\x02\x04\x12\x06\x82\x03\x04\x81\x03\x19\n\r\n\
+    \x05\x04,\x02\x02\x05\x12\x04\x82\x03\x04\n\n\r\n\x05\x04,\x02\x02\x01\
+    \x12\x04\x82\x03\x0b\x13\n\r\n\x05\x04,\x02\x02\x03\x12\x04\x82\x03\x16\
+    \x17\n\x0c\n\x02\x04-\x12\x06\x85\x03\0\x87\x03\x01\n\x0b\n\x03\x04-\x01\
+    \x12\x04\x85\x03\x08\x19\n\x0c\n\x04\x04-\x02\0\x12\x04\x86\x03\x04\x1e\
+    \n\x0f\n\x05\x04-\x02\0\x04\x12\x06\x86\x03\x04\x85\x03\x1b\n\r\n\x05\
+    \x04-\x02\0\x06\x12\x04\x86\x03\x04\x12\n\r\n\x05\x04-\x02\0\x01\x12\x04\
+    \x86\x03\x13\x19\n\r\n\x05\x04-\x02\0\x03\x12\x04\x86\x03\x1c\x1db\x06pr\
+    oto3\
 ";
 
 static mut file_descriptor_proto_lazy: ::protobuf::lazy::Lazy<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::lazy::Lazy {
