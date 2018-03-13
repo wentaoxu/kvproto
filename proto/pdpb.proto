@@ -384,6 +384,8 @@ message GetUserKVResponse {
 
 message PutUserKVRequest {
     RequestHeader header = 1;
+    string key = 2;
+    string value = 3;
 }
 
 message PutUserKVResponse {
@@ -399,4 +401,5 @@ message DeleteUserKVRequest {
 
 message DeleteUserKVResponse {
     ResponseHeader header = 1;
+    string key = 2;
 }
